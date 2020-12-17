@@ -1,6 +1,7 @@
 gidgee
 libgidgee.a
 libgidgee.so
+*.ppm
 
 # Prerequisites
 *.d
