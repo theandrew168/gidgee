@@ -6,7 +6,7 @@
 CFLAGS_VERSION = -std=c99
 CFLAGS_OPTIMIZATIONS = -g -Og
 CFLAGS_WARNINGS = -Wall -Wextra -Wpedantic
-CFLAGS_INCLUDE_DIRS = -Isrc/ -Ivendor/include/
+CFLAGS_INCLUDE_DIRS = -Isrc/
 
 # Declare compiler tools and flags
 AR      = ar
