@@ -1,3 +1,7 @@
+gidgee
+libgidgee.a
+libgidgee.so
+
 # Prerequisites
 *.d
 
@@ -18,7 +22,7 @@
 
 # Libraries
 *.lib
-*.a
+#*.a
 *.la
 *.lo
 
