@@ -6,9 +6,7 @@
 CFLAGS_VERSION = -std=c99
 CFLAGS_OPTIMIZATIONS = -g -Og
 CFLAGS_WARNINGS = -Wall -Wextra -Wpedantic
-CFLAGS_DEFINITIONS = -DGLFW_INCLUDE_NONE
 CFLAGS_INCLUDE_DIRS = -Isrc/ -Ivendor/include/
-CFLAGS_EXTRAS =
 
 # Declare compiler tools and flags
 AR      = ar
@@ -17,11 +15,9 @@ CFLAGS  = -fPIC
 CFLAGS += $(CFLAGS_VERSION)
 CFLAGS += $(CFLAGS_OPTIMIZATIONS)
 CFLAGS += $(CFLAGS_WARNINGS)
-CFLAGS += $(CFLAGS_DEFINITIONS)
 CFLAGS += $(CFLAGS_INCLUDE_DIRS)
-CFLAGS += $(CFLAGS_EXTRAS)
 LDFLAGS =
-LDLIBS  = -ldl -lglfw -lm
+LDLIBS  = -ldl -lm
 
 # Declare which targets should be built by default
 default: gidgee
