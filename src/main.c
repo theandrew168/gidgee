@@ -2,11 +2,11 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
+#include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 #include <linmath/linmath.h>
-
-#include "opengl.h"
 
 static void
 print_usage(const char* arg0)
@@ -16,15 +16,12 @@ print_usage(const char* arg0)
     printf("Options:\n");
     printf("  -h --help        print this help\n");
     printf("  -f --fullscreen  fullscreen window\n");
-    printf("  -v --vsync       enable vsync\n");
 }
 
 int
 main(int argc, char* argv[])
 {
     bool fullscreen = false;
-    bool vsync = false;
-
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             print_usage(argv[0]);
@@ -32,9 +29,6 @@ main(int argc, char* argv[])
         }
         if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--fullscreen") == 0) {
             fullscreen = true;
-        }
-        if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--vsync") == 0) {
-            vsync = true;
         }
     }
 
@@ -45,12 +39,14 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    if (!glfwVulkanSupported()) {
+        fprintf(stderr, "Vulkan is not supported on this device / platform!\n");
+        glfwTerminate();
+        return EXIT_FAILURE;
+    }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -75,15 +71,56 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(vsync ? 1 : 0);
-    opengl_load_functions();
+    uint32_t extension_count = 0;
+    const char** extensions = glfwGetRequiredInstanceExtensions(&extension_count);
+    assert(extensions != NULL);
+    for (long i = 0; i < extension_count; i++) {
+        printf("Desired Extension: %s\n", extensions[i]);
+    }
 
-    printf("OpenGL Vendor:   %s\n", glGetString(GL_VENDOR));
-    printf("OpenGL Renderer: %s\n", glGetString(GL_RENDERER));
-    printf("OpenGL Version:  %s\n", glGetString(GL_VERSION));
-    printf("GLSL Version:    %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    const char* layers[] = {
+        "VK_LAYER_LUNARG_standard_validation",
+    };
+    uint32_t layer_count = sizeof(layers) / sizeof(*layers);
+
+    for (uint32_t i = 0; i < layer_count; i++) {
+        printf("Desired Layer: %s\n", layers[i]);
+    }
+
+    VkInstanceCreateInfo instance_create_info = {
+        .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+        .pApplicationInfo = &(VkApplicationInfo){
+            .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+            .pApplicationName = "GLFW3 Vulkan Demo",
+            .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+            .apiVersion = VK_API_VERSION_1_0,
+        },
+        .enabledExtensionCount = extension_count,
+        .ppEnabledExtensionNames = extensions,
+        .enabledLayerCount = layer_count,
+        .ppEnabledLayerNames = layers,
+    };
+
+    PFN_vkCreateInstance vkCreateInstance = (PFN_vkCreateInstance)glfwGetInstanceProcAddress(NULL, "vkCreateInstance");
+    assert(vkCreateInstance != NULL);
+
+    VkInstance instance = VK_NULL_HANDLE;
+    if (vkCreateInstance(&instance_create_info, NULL, &instance) != VK_SUCCESS) {
+        fprintf(stderr, "failed to create Vulkan instance\n");
+        return EXIT_FAILURE;
+    }
+
+    PFN_vkDestroyInstance vkDestroyInstance = (PFN_vkDestroyInstance)glfwGetInstanceProcAddress(instance, "vkDestroyInstance");
+    assert(vkDestroyInstance != NULL);
+
+    PFN_vkDestroySurfaceKHR vkDestroySurfaceKHR = (PFN_vkDestroySurfaceKHR)glfwGetInstanceProcAddress(instance, "vkDestroySurfaceKHR");
+    assert(vkDestroySurfaceKHR != NULL);
+
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    if (glfwCreateWindowSurface(instance, window, NULL, &surface) != VK_SUCCESS) {
+        fprintf(stderr, "failed to create Vulkan surface\n");
+        return EXIT_FAILURE;
+    }
 
     double last_second = glfwGetTime();
     double last_frame = last_second;
@@ -100,10 +137,7 @@ main(int argc, char* argv[])
 
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
-        glViewport(0, 0, width, height);
-
-        glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//        printf("%d %d\n", width, height);
 
         frame_count++;
         if (glfwGetTime() - last_second >= 1.0) {
@@ -112,10 +146,11 @@ main(int argc, char* argv[])
             last_second += 1.0;
         }
 
-        glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
+    vkDestroySurfaceKHR(instance, surface, NULL);
+    vkDestroyInstance(instance, NULL);
     glfwDestroyWindow(window);
     glfwTerminate();
 

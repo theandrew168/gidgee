@@ -2,9 +2,6 @@
 .POSIX:
 .SUFFIXES:
 
-# Build requirements references:
-# https://www.glfw.org/docs/latest/build_guide.html
-
 # CFLAGS breakout by category
 CFLAGS_VERSION = -std=c99
 CFLAGS_OPTIMIZATIONS = -g -Og
@@ -24,7 +21,7 @@ CFLAGS += $(CFLAGS_DEFINITIONS)
 CFLAGS += $(CFLAGS_INCLUDE_DIRS)
 CFLAGS += $(CFLAGS_EXTRAS)
 LDFLAGS =
-LDLIBS  = -ldl -lGL -lglfw -lm
+LDLIBS  = -ldl -lglfw -lm
 
 # Declare which targets should be built by default
 default: gidgee
@@ -32,11 +29,11 @@ all: libgidgee.a libgidgee.so gidgee
 
 # Declare library sources
 libgidgee_sources =  \
-  src/opengl.c
+  src/foo.c
 libgidgee_objects = $(libgidgee_sources:.c=.o)
 
 # Express dependencies between object and source files
-src/opengl.o: src/opengl.c src/opengl.h
+src/foo.o: src/foo.c src/foo.h
 
 # Build the static library
 libgidgee.a: $(libgidgee_objects)
