@@ -7,9 +7,9 @@ FOR /R %%f in (*.c) do (
 )
 echo Files: %sources%
 
-SET cflags=-MT -WL -FC /Fo.\src\ /I %cd%\src\ /I %cd%\vendor\include\
+SET cflags=/FC /MT /WL /Zl /Fo.\src\ /I %cd%\src\ /I %cd%\vendor\include\
 SET ldflags=/SUBSYSTEM:CONSOLE /INCREMENTAL:NO /OPT:REF /OUT:.\main.exe
-SET ldlibs=/LIBPATH:"%cd%\vendor\lib64\windows\" libglfw3.a gdi32.lib kernel32.lib user32.lib
+SET ldlibs=/LIBPATH:"%cd%\vendor\lib64\windows\" glfw3.lib gdi32.lib kernel32.lib shell32.lib user32.lib
 
 cl %cflags% %sources% /link %ldflags% %ldlibs%
 
