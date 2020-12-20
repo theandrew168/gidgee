@@ -1,6 +1,9 @@
 import glfw
 from OpenGL.GL import *
 
+# pip install wheel
+# pip install glfw pyopengl
+
 def main():
     # Initialize the library
     if not glfw.init():
