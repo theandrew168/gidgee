@@ -6,7 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <GLFW/glfw3.h>
+static void
+print_usage(const char* arg0)
+{
+    printf("usage: %s [options]\n", arg0);
+    printf("\n");
+    printf("Options:\n");
+    printf("  -h --help        print this help\n");
+}
 
 static void
 ppm_write_header(FILE* stream, long width, long height)
@@ -201,109 +208,50 @@ ray_color(struct ray r, struct sphere* spheres, long count)
     return vec3_add(vec3_mul_scalar(black, 1.0f - t), vec3_mul_scalar(color, t));
 }
 
-static void
-print_usage(const char* arg0)
-{
-    printf("usage: %s [options]\n", arg0);
-    printf("\n");
-    printf("Options:\n");
-    printf("  -h --help        print this help\n");
-    printf("  -f --fullscreen  fullscreen window\n");
-    printf("  -v --vsync       enable vsync\n");
-}
-
 int
 main(int argc, char* argv[])
 {
-    bool fullscreen = false;
-    bool vsync = false;
-
-    // process CLI args and update corresponding flags
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             print_usage(argv[0]);
             return EXIT_SUCCESS;
         }
-        if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--fullscreen") == 0) {
-            fullscreen = true;
-        }
-        if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--vsync") == 0) {
-            vsync = true;
-        }
     }
 
-	if (!glfwInit()) {
-		const char* error = NULL;
-		glfwGetError(&error);
-		fprintf(stderr, "failed to init GLFW3: %s\n", error);
-		return EXIT_FAILURE;
-	}
+    // output image dimensions
+    long image_width = 1280;
+    long image_height = 720;
 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    // world-space viewport bounds
+    float aspect_ratio = 16.0f / 9.0f;
+    float viewport_height = 2.0f;
+    float viewport_width = viewport_height * aspect_ratio;
+    float focal_length = 1.0f;
 
-    // ask for an OpenGL 3.3 Core profile
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    struct sphere spheres[] = {
+        { { 0.0f, 0.0f, -1.0f }, 0.5f },
+        { { 0.0f, -100.5f, -1.0f }, 100.0f },
+    };
 
-    // set flags for monitor details
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+    ppm_write_header(stdout, image_width, image_height);
+    for (long y = image_height - 1; y >= 0; y--) {
+        fprintf(stderr, "lines remaining: %ld\n", y);
+        for (long x = 0; x < image_width; x++) {
+            float u = (float)x / (image_width - 1);
+            float v = (float)y / (image_height - 1);
+            struct ray r = {
+                .origin = { 0.0f, 0.0f, 0.0f },
+                .direction = {
+                    .x = -(viewport_width / 2.0f) + (u * viewport_width),
+                    .y = -(viewport_height / 2.0f) + (v * viewport_height),
+                    .z = -focal_length,
+                },
+            };
 
-    GLFWwindow* window = NULL;
-    if (fullscreen) {
-        window = glfwCreateWindow(mode->width, mode->height, "Gidgee Physics", monitor, NULL);
-    } else {
-        window = glfwCreateWindow(1280, 720, "Gidgee Physics", NULL, NULL);
-    }
-
-    if (window == NULL) {
-        const char* error = NULL;
-        glfwGetError(&error);
-        fprintf(stderr, "failed to create GLFW3 window: %s\n", error);
-
-        glfwTerminate();
-        return EXIT_FAILURE;
-    }
-
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(vsync ? 1 : 0);
-
-    double last_second = glfwGetTime();
-    double last_frame = last_second;
-    long frame_count = 0;
-
-    while (!glfwWindowShouldClose(window)) {
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
+            struct vec3 pixel_color = ray_color(r, spheres, sizeof(spheres) / sizeof(*spheres));
+            ppm_write_pixel(stdout, pixel_color.x, pixel_color.y, pixel_color.z);
         }
-
-        double now = glfwGetTime();
-        double delta = now - last_frame;
-        last_frame = now;
-
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-
-        frame_count++;
-        if (glfwGetTime() - last_second >= 1.0) {
-            printf("FPS: %ld  (%lf ms/frame)\n", frame_count, 1000.0/frame_count);
-            frame_count = 0;
-            last_second += 1.0;
-        }
-
-        glfwSwapBuffers(window);
-        glfwPollEvents();
     }
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
 
     return EXIT_SUCCESS;
 }
