@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <float.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -83,10 +84,28 @@ vec3_div_scalar(struct vec3 v1, float s)
     return v;
 }
 
+static struct vec3
+vec3_neg(struct vec3 v1)
+{
+    struct vec3 v = {
+        .x = -v1.x,
+        .y = -v1.y,
+        .z = -v1.z,
+    };
+
+    return v;
+}
+
+static float
+vec3_dot(struct vec3 v1, struct vec3 v2)
+{
+    return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
+}
+
 static float
 vec3_magnitude_squared(struct vec3 v1)
 {
-    return (v1.x * v1.x) + (v1.y * v1.y) + (v1.z * v1.z);
+    return vec3_dot(v1, v1);
 }
 
 static float
@@ -101,12 +120,6 @@ vec3_normalize(struct vec3 v1)
     return vec3_div_scalar(v1, vec3_magnitude(v1));
 }
 
-static float
-vec3_dot(struct vec3 v1, struct vec3 v2)
-{
-    return (v1.x * v2.x) + (v1.y * v2.y) + (v1.z * v2.z);
-}
-
 struct ray {
     struct vec3 origin;
     struct vec3 direction;
@@ -118,32 +131,78 @@ ray_at(struct ray r, float t)
     return vec3_add(r.origin, vec3_mul_scalar(r.direction, t));
 }
 
-static float
-ray_hit_sphere(struct ray r, struct vec3 center, float radius)
+struct sphere {
+    struct vec3 center;
+    float radius;
+};
+
+struct intersection {
+    struct vec3 point;
+    struct vec3 normal;
+    float t;
+    bool front_face;
+};
+
+static void
+intersect_set_face_normal(struct intersection* i, struct ray r, struct vec3 outward_normal)
 {
-    struct vec3 oc = vec3_sub(r.origin, center);
+    assert(i != NULL);
+
+    i->front_face = vec3_dot(r.direction, outward_normal) < 0.0f;
+    i->normal = i->front_face ? outward_normal : vec3_neg(outward_normal);
+}
+
+static bool
+intersect_ray_sphere(struct intersection* i, struct ray r, struct sphere s, float t_min, float t_max)
+{
+    assert(i != NULL);
+
+    struct vec3 oc = vec3_sub(r.origin, s.center);
     float a = vec3_magnitude_squared(r.direction);
     float half_b = vec3_dot(oc, r.direction);
-    float c = vec3_magnitude_squared(oc) - (radius * radius);
+    float c = vec3_magnitude_squared(oc) - (s.radius * s.radius);
     float discriminant = (half_b * half_b) - (a * c);
-    if (discriminant < 0.0f) {
-        return -1.0f;
-    } else {
-        return (-half_b - sqrtf(discriminant)) / a;
+
+    // early exit if no roots (aka no intersection points)
+    if (discriminant < 0.0f) return false;
+    float sqrtd = sqrtf(discriminant);
+
+    // find nearest root that lies within [t_min, t_max]
+    float root = (-half_b - sqrtd) / a;
+    if (root < t_min || root > t_max) {
+        root = (-half_b + sqrtd) / a;
+        if (root < t_min || root > t_max) {
+            return false;
+        }
     }
+
+    i->t = root;
+    i->point = ray_at(r, i->t);
+    struct vec3 outward_normal = vec3_div_scalar(vec3_sub(i->point, s.center), s.radius);
+    intersect_set_face_normal(i, r, outward_normal);
+    return true;
 }
 
 static struct vec3
-ray_color(struct ray r)
+ray_color(struct ray r, struct sphere* spheres, long count)
 {
-    float t = ray_hit_sphere(r, (struct vec3){ 0.0f, 0.0f, -1.0f }, 0.5f);
-    if (t > 0.0f) {
-        struct vec3 n = vec3_normalize(vec3_sub(ray_at(r, t), (struct vec3){ 0.0f, 0.0f, -1.0f }));
-        return vec3_mul_scalar((struct vec3){ n.x + 1.0f, n.y + 1.0f, n.z + 1.0f }, 0.5f);
+    struct intersection in = { 0 };
+    bool hit_anything = false;
+    float closest = FLT_MAX;
+
+    for (long i = 0; i < count; i++) {
+        if (intersect_ray_sphere(&in, r, spheres[i], 0.001f, closest)) {
+            hit_anything = true;
+            closest = in.t;
+        }
+    }
+
+    if (hit_anything) {
+        return vec3_mul_scalar(vec3_add(in.normal, (struct vec3){ 1.0f, 1.0f, 1.0f }), 0.5f);
     }
 
     struct vec3 unit_direction = vec3_normalize(r.direction);
-    t = 0.5f * (unit_direction.y + 1.0f);
+    float t = 0.5f * (unit_direction.y + 1.0f);
     struct vec3 black = { 1.0f, 1.0f, 1.0f };
     struct vec3 color = { 0.5f, 0.7f, 1.0f };
     return vec3_add(vec3_mul_scalar(black, 1.0f - t), vec3_mul_scalar(color, t));
@@ -169,6 +228,11 @@ main(int argc, char* argv[])
     float viewport_width = viewport_height * aspect_ratio;
     float focal_length = 1.0f;
 
+    struct sphere spheres[] = {
+        { { 0.0f, 0.0f, -1.0f }, 0.5f },
+        { { 0.0f, -100.5f, -1.0f }, 100.0f },
+    };
+
     ppm_write_header(stdout, image_width, image_height);
     for (long y = image_height - 1; y >= 0; y--) {
         fprintf(stderr, "lines remaining: %ld\n", y);
@@ -184,7 +248,7 @@ main(int argc, char* argv[])
                 },
             };
 
-            struct vec3 pixel_color = ray_color(r);
+            struct vec3 pixel_color = ray_color(r, spheres, sizeof(spheres) / sizeof(*spheres));
             ppm_write_pixel(stdout, pixel_color.x, pixel_color.y, pixel_color.z);
         }
     }
