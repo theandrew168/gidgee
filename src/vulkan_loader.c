@@ -8,6 +8,10 @@
 
 #include "vulkan_loader.h"
 
+// None of the other expansions need this extra param. Is there a
+// better way to handle this? I don't love global-ish things...
+static VkInstance _instance;
+
 PFN_vkCreateInstance vkCreateInstance = NULL;
 
 #define VULKAN_DEFINE(func_name)  \
@@ -17,9 +21,6 @@ PFN_vkCreateInstance vkCreateInstance = NULL;
 VULKAN_FUNCTIONS
 #undef VULKAN_FUNCTION
 
-// None of the other expansions need this extra param. Is there a
-// better way to handle this? I don't love global-ish things...
-static VkInstance _instance;
 #define VULKAN_LOAD(func_name)  \
     func_name = (PFN_##func_name)glfwGetInstanceProcAddress(_instance, #func_name);
 
