@@ -3,6 +3,7 @@
 :: list of source files to be compiled
 set SOURCES=                ^
   %cd%\src\opengl_loader.c  ^
+  %cd%\src\vulkan_loader.c  ^
   %cd%\src\main.c
 
 :: References:
