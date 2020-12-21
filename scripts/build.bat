@@ -24,11 +24,10 @@ set CFLAGS=%CFLAGS% /I %cd%\src\ /I %cd%\vendor\include\
 :: /D  defines a preprocessing symbol
 set CFLAGS=%CFLAGS% /D GLFW_INCLUDE_NONE /D VK_NO_PROTOTYPES
 
-:: /OUT          name of output file
 :: /SUBSYSTEM    type of application (CONSOLE for development, WINDOWS for deployment)
 :: /ENTRY        program entry point (always mainCRTStartup)
 :: /INCREMENTAL  control incremental linking
-set LDFLAGS=/OUT:.\gidgee.exe /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup /INCREMENTAL:NO
+set LDFLAGS=/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup /INCREMENTAL:NO
 
 :: /LIBPATH      extra directories to search for libraries
 :: glfw3.lib     open source library for multi-platform OpenGL and Vulkan development
@@ -42,8 +41,9 @@ set LDLIBS=/LIBPATH:"%cd%\vendor\lib64\windows\" glfw3.lib gdi32.lib kernel32.li
 :: CFLAGS   options for compilation
 :: SOURCES  source files to be compiled
 :: /link    options to be passed to the linker
+:: /OUT     name of output file
 :: LDFLAGS  options for linking
 :: LDLIBS   libraries to link against
-cl.exe %CFLAGS% %SOURCES% /link %LDFLAGS% %LDLIBS%
+cl.exe %CFLAGS% %SOURCES% /link /OUT:.\gidgee.exe %LDFLAGS% %LDLIBS%
 
 echo Error: %ERRORLEVEL%
