@@ -7,15 +7,16 @@ set SOURCES=                ^
   %cd%\src\main.c
 
 :: References:
-:: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically
+:: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options
 :: https://docs.microsoft.com/en-us/cpp/build/reference/linker-options
 
 :: /FC  use full pathnames in diagnostics
 :: /MT  link with LIBCMT.LIB
 :: /WL  enable one line diagnostics
 :: /Zi  generate debugging info
+:: /Zl  omit default C runtime library
 :: /Fo  name object file
-set CFLAGS=/FC /MT /WL /Zi /Fo.\src\
+set CFLAGS=/FC /MT /WL /Zi /Zl /Fo.\src\
 
 :: /I  add directory to header search path
 set CFLAGS=%CFLAGS% /I %cd%\src\ /I %cd%\vendor\include\
@@ -24,10 +25,10 @@ set CFLAGS=%CFLAGS% /I %cd%\src\ /I %cd%\vendor\include\
 set CFLAGS=%CFLAGS% /D GLFW_INCLUDE_NONE /D VK_NO_PROTOTYPES
 
 :: /OUT          name of output file
-:: /SUBSYSTEM    type of application (usually CONSOLE or WINDOWS)
-:: /ENTRY        program entry point (usually mainCRTStartup)
+:: /SUBSYSTEM    type of application (CONSOLE for development, WINDOWS for deployment)
+:: /ENTRY        program entry point (always mainCRTStartup)
 :: /INCREMENTAL  control incremental linking
-set LDFLAGS=/OUT:.\main.exe /SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup /INCREMENTAL:NO
+set LDFLAGS=/OUT:.\gidgee.exe /SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup /INCREMENTAL:NO
 
 :: /LIBPATH      extra directories to search for libraries
 :: glfw3.lib     open source library for multi-platform OpenGL and Vulkan development
