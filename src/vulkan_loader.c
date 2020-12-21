@@ -10,7 +10,7 @@
 
 // None of the other expansions need this extra param. Is there a
 // better way to handle this? I don't love global-ish things...
-static VkInstance _instance;
+static VkInstance _instance = VK_NULL_HANDLE;
 
 PFN_vkCreateInstance vkCreateInstance = NULL;
 

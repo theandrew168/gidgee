@@ -52,9 +52,9 @@ libgidgee.so: $(libgidgee_objects)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 # Compile and link the main executable
-gidgee: src/main.c libgidgee.a
+gidgee: src/main_vk.c libgidgee.a
 	@echo "EXE     $@"
-	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ src/main.c libgidgee.a $(LDLIBS)
+	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ src/main_vk.c libgidgee.a $(LDLIBS)
 
 # Helper target that cleans up build artifacts
 .PHONY: clean
