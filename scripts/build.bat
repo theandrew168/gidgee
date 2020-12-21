@@ -16,12 +16,10 @@ set SOURCES=                ^
 :: /Zi  generate debugging info
 :: /Zl  omit default C runtime library
 :: /Fo  name object file
+:: /I   add directory to header search path
+:: /D   defines a preprocessing symbol
 set CFLAGS=/FC /MT /WL /Zi /Zl /Fo.\src\
-
-:: /I  add directory to header search path
 set CFLAGS=%CFLAGS% /I %cd%\src\ /I %cd%\vendor\include\
-
-:: /D  defines a preprocessing symbol
 set CFLAGS=%CFLAGS% /D GLFW_INCLUDE_NONE /D VK_NO_PROTOTYPES
 
 :: /SUBSYSTEM    type of application (CONSOLE for development, WINDOWS for deployment)
