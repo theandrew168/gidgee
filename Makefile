@@ -6,7 +6,8 @@
 CFLAGS_VERSION = -std=c99
 CFLAGS_OPTIMIZATIONS = -g -Og
 CFLAGS_WARNINGS = -Wall -Wextra -Wpedantic
-CFLAGS_INCLUDE_DIRS = -Isrc/
+CFLAGS_DEFINITIONS = -DGLFW_INCLUDE_NONE
+CFLAGS_INCLUDE_DIRS = -Isrc/ -Ivendor/include/
 
 # Declare compiler tools and flags
 AR      = ar
@@ -15,6 +16,7 @@ CFLAGS  = -fPIC
 CFLAGS += $(CFLAGS_VERSION)
 CFLAGS += $(CFLAGS_OPTIMIZATIONS)
 CFLAGS += $(CFLAGS_WARNINGS)
+CFLAGS += $(CFLAGS_DEFINITIONS)
 CFLAGS += $(CFLAGS_INCLUDE_DIRS)
 LDFLAGS =
 LDLIBS  = -ldl -lm
@@ -25,11 +27,11 @@ all: libgidgee.a libgidgee.so gidgee
 
 # Declare library sources
 libgidgee_sources =  \
-  src/foo.c
+  src/opengl_loader.c
 libgidgee_objects = $(libgidgee_sources:.c=.o)
 
 # Express dependencies between object and source files
-src/foo.o: src/foo.c src/foo.h
+src/opengl_loader.o: src/opengl_loader.c src/opengl_loader.h
 
 # Build the static library
 libgidgee.a: $(libgidgee_objects)

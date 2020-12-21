@@ -9,7 +9,7 @@ For Windows builds, [mingw-w64](http://mingw-w64.org/doku.php) is used to cross-
 ### Linux
 ```
 # debian-based
-sudo apt install gcc make
+sudo apt install gcc make libglfw3-dev
 
 make
 ```
@@ -18,7 +18,8 @@ make
 ```
 brew install make
 
-make
+make LDLIBS='-Lvendor/lib64/macos/ -lglfw3  \
+  -framework Cocoa -framework IOKit
 ```
 
 ### Windows
@@ -32,7 +33,9 @@ sudo apt install make mingw-w64
 make  \
   AR=x86_64-w64-mingw32-ar  \
   CC=x86_64-w64-mingw32-gcc  \
-  LDLIBS=
+  LDFLAGS=-mwindows  \
+  LDLIBS='-Lvendor/lib64/windows/ -lglfw3  \
+    -lgdi32 -lkernel32 -lshell32 -luser32'
 ```
 
 From macOS:
@@ -42,5 +45,7 @@ brew install make mingw-w64
 make  \
   AR=x86_64-w64-mingw32-ar  \
   CC=x86_64-w64-mingw32-gcc  \
-  LDLIBS=
+  LDFLAGS=-mwindows  \
+  LDLIBS='-Lvendor/lib64/windows/ -lglfw3  \
+    -lgdi32 -lkernel32 -lshell32 -luser32'
 ```
