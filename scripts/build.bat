@@ -14,8 +14,13 @@ set SOURCES=                ^
 :: /WL  enable one line diagnostics
 :: /Zi  generate debugging info
 :: /Fo  name object file
-:: /I   add to include search path
-set CFLAGS=/FC /MT /WL /Zi /Fo.\src\ /I%cd%\src\ /I%cd%\vendor\include\
+set CFLAGS=/FC /MT /WL /Zi /Fo.\src\
+
+:: /I  add directory to header search path
+set CFLAGS=%CFLAGS% /I %cd%\src\ /I %cd%\vendor\include\
+
+:: /D  defines a preprocessing symbol
+set CFLAGS=%CFLAGS% /D GLFW_INCLUDE_NONE /D VK_NO_PROTOTYPES
 
 :: /OUT          name of output file
 :: /SUBSYSTEM    type of application (usually CONSOLE or WINDOWS)

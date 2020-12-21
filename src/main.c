@@ -6,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "opengl_loader.h"
+#include "vulkan_loader.h"
 
 static void
 print_usage(const char* arg0)

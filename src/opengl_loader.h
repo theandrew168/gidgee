@@ -1,5 +1,5 @@
-#ifndef DEMO_OPENGL_H_INCLUDED
-#define DEMO_OPENGL_H_INCLUDED
+#ifndef OPENGL_LOADER_H_INCLUDED
+#define OPENGL_LOADER_H_INCLUDED
 
 #include <stdbool.h>
 
