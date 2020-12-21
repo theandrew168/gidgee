@@ -85,7 +85,7 @@ main(int argc, char* argv[])
     }
 
     const char* layers[] = {
-        "VK_LAYER_LUNARG_standard_validation",
+        "VK_LAYER_KHRONOS_validation",
     };
     uint32_t layer_count = sizeof(layers) / sizeof(*layers);
 
