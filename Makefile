@@ -19,7 +19,7 @@ CFLAGS += $(CFLAGS_WARNINGS)
 CFLAGS += $(CFLAGS_DEFINITIONS)
 CFLAGS += $(CFLAGS_INCLUDE_DIRS)
 LDFLAGS =
-LDLIBS  = -ldl -lm
+LDLIBS  = -ldl -lglfw -lm
 
 # Declare which targets should be built by default
 default: gidgee
