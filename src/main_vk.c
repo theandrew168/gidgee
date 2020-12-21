@@ -80,7 +80,7 @@ main(int argc, char* argv[])
     uint32_t extension_count = 0;
     const char** extensions = glfwGetRequiredInstanceExtensions(&extension_count);
     assert(extensions != NULL);
-    for (long i = 0; i < extension_count; i++) {
+    for (uint32_t i = 0; i < extension_count; i++) {
         printf("Desired Extension: %s\n", extensions[i]);
     }
 
