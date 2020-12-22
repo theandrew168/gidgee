@@ -14,7 +14,7 @@
 extern PFN_vkCreateInstance vkCreateInstance;
 
 #define VULKAN_DECLARE(func_name)  \
-    extern VKAPI_ATTR VKAPI_CALL PFN_##func_name func_name;
+    extern PFN_##func_name func_name;
 
 #define VULKAN_FUNCTION VULKAN_DECLARE
 VULKAN_FUNCTIONS
