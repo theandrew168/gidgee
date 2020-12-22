@@ -10,6 +10,9 @@
 
 
 PFN_vkCreateInstance vkCreateInstance = NULL;
+PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion = NULL;
+PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties = NULL;
+PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties = NULL;
 
 #define VULKAN_DEFINE(func_name)  \
     PFN_##func_name func_name = NULL;
@@ -31,10 +34,25 @@ VULKAN_FUNCTIONS
 bool
 vulkan_loader_load_initial(void)
 {
-    // handle the vkCreateInstance special case
     vkCreateInstance = (PFN_vkCreateInstance)glfwGetInstanceProcAddress(NULL, "vkCreateInstance");
+    vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)glfwGetInstanceProcAddress(NULL, "vkEnumerateInstanceVersion");
+    vkEnumerateInstanceExtensionProperties = (PFN_vkEnumerateInstanceExtensionProperties)glfwGetInstanceProcAddress(NULL, "vkEnumerateInstanceExtensionProperties");
+    vkEnumerateInstanceLayerProperties = (PFN_vkEnumerateInstanceLayerProperties)glfwGetInstanceProcAddress(NULL, "vkEnumerateInstanceLayerProperties");
+
     if (vkCreateInstance == NULL) {
         fprintf(stderr, "failed to load func: %s\n", "vkCreateInstance");
+        return false;
+    }
+    if (vkEnumerateInstanceVersion == NULL) {
+        fprintf(stderr, "failed to load func: %s\n", "vkEnumerateInstanceVersion");
+        return false;
+    }
+    if (vkEnumerateInstanceExtensionProperties == NULL) {
+        fprintf(stderr, "failed to load func: %s\n", "vkEnumerateInstanceExtensionProperties");
+        return false;
+    }
+    if (vkEnumerateInstanceLayerProperties == NULL) {
+        fprintf(stderr, "failed to load func: %s\n", "vkEnumerateInstanceLayerProperties");
         return false;
     }
 

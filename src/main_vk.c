@@ -69,7 +69,6 @@ main(int argc, char* argv[])
         const char* error = NULL;
         glfwGetError(&error);
         fprintf(stderr, "failed to create GLFW3 window: %s\n", error);
-
         glfwTerminate();
         return EXIT_FAILURE;
     }
@@ -92,6 +91,30 @@ main(int argc, char* argv[])
     for (uint32_t i = 0; i < layer_count; i++) {
         printf("Desired Layer: %s\n", layers[i]);
     }
+
+    uint32_t vk_extension_count = 0;
+    vkEnumerateInstanceExtensionProperties(NULL, &vk_extension_count, NULL);
+    VkExtensionProperties* vk_extensions = malloc(vk_extension_count * sizeof(VkExtensionProperties));
+    assert(vk_extensions != NULL);
+    vkEnumerateInstanceExtensionProperties(NULL, &vk_extension_count, vk_extensions);
+
+    for (uint32_t i = 0; i < vk_extension_count; i++) {
+        printf("Available Extension: %s\n", vk_extensions[i].extensionName);
+    }
+
+    free(vk_extensions);
+
+    uint32_t vk_layer_count = 0;
+    vkEnumerateInstanceLayerProperties(&vk_layer_count, NULL);
+    VkLayerProperties* vk_layers = malloc(vk_layer_count * sizeof(VkLayerProperties));
+    assert(vk_layers != NULL);
+    vkEnumerateInstanceLayerProperties(&vk_layer_count, vk_layers);
+
+    for (uint32_t i = 0; i < vk_layer_count; i++) {
+        printf("Available Layer: %s\n", vk_layers[i].layerName);
+    }
+
+    free(vk_layers);
 
     VkInstanceCreateInfo instance_create_info = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,

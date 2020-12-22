@@ -4,7 +4,7 @@
 set SOURCES=                ^
   %cd%\src\opengl_loader.c  ^
   %cd%\src\vulkan_loader.c  ^
-  %cd%\src\main.c
+  %cd%\src\main_vk.c
 
 :: References:
 :: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options
