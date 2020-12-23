@@ -40,7 +40,7 @@ main(int argc, char* argv[])
     }
 
     if (!glfwInit()) {
-        fprintf(stderr, "failed to init GLFW3");
+        fprintf(stderr, "failed to init GLFW3!\n");
         return EXIT_FAILURE;
     }
 
@@ -64,7 +64,7 @@ main(int argc, char* argv[])
     if (fullscreen) window = glfwCreateWindow(mode->width, mode->height, "Gidgee Physics", monitor, NULL);
     else window = glfwCreateWindow(1280, 720, "Gidgee Physics", NULL, NULL);
     if (window == NULL) {
-        fprintf(stderr, "failed to create GLFW3 window");
+        fprintf(stderr, "failed to create GLFW3 window!\n");
         glfwTerminate();
         return EXIT_FAILURE;
     }
