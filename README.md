@@ -44,9 +44,9 @@ scripts\build.bat
 ```
 
 The `scripts\shell.bat` script assumes that Visual Studio 2019 Community Edition is installed.
-If you are using different version then update this script accordingly.
+If you are using a different version then you'll need to update this script accordingly.
 
-#### Cross-Compile From Linux
+#### Cross-Compile from Linux
 ```
 # debian-based
 sudo apt install make mingw-w64
@@ -59,7 +59,7 @@ make  \
     -lgdi32 -lkernel32 -lshell32 -luser32'
 ```
 
-#### Cross-Compile From macOS
+#### Cross-Compile from macOS
 ```
 brew install make mingw-w64
 
