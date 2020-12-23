@@ -256,9 +256,9 @@ main(int argc, char* argv[])
         vkEnumerateDeviceExtensionProperties(physical_devices[i], NULL, &ext_count, exts);
 
         // debug print the available device extensions
-        for (long ext = 0; ext < ext_count; ext++) {
-            printf("Available Device Extension: %s\n", exts[ext].extensionName);
-        }
+        // for (long ext = 0; ext < ext_count; ext++) {
+        //     printf("Available Device Extension: %s\n", exts[ext].extensionName);
+        // }
 
         // ensure availability of VK_KHR_swapchain device extension
         // TODO: check for a proper subset of device_extensions

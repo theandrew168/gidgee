@@ -1,6 +1,18 @@
 # gidgee
 Experiments in real-time rendering and rigid body physics
 
+## Dependencies
+Gidgee depends on two other open-source projects: [GLFW](https://www.glfw.org/) and [Vulkan](https://www.khronos.org/vulkan/).
+
+### GLFW
+On Windows and macOS, this dependency is bundled into the project and therefore requires no special installation steps.
+On Linux, however, this must be installed (or built) manually.
+The package name on Debian-based distributions is `libglfw3-dev`.
+
+### Vulkan
+Gidgee depends on having a recent version of the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) installed.
+Consult the install guide for your preferred platform ([Windows](https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html), [macOS](https://vulkan.lunarg.com/doc/sdk/latest/mac/getting_started.html), [Linux](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html))
+
 ## Building
 This project is built using POSIX-compatible [make](https://pubs.opengroup.org/onlinepubs/009695399/utilities/make.html).
 For unix-like systems, it can be built natively.
@@ -23,9 +35,12 @@ make LDLIBS='-Lvendor/lib64/macos/ -lglfw3  \
 ```
 
 ### Windows
-Windows binaries are cross-compiled from Linux or macOS.
+Windows binaries can be built natively or cross-compiled from Linux or macOS.
 
-From Linux:
+#### Native
+With a recent version of [Visual Studio](https://visualstudio.microsoft.com/downloads/) installed.
+
+#### Cross-Compile From Linux
 ```
 # debian-based
 sudo apt install make mingw-w64
@@ -38,7 +53,7 @@ make  \
     -lgdi32 -lkernel32 -lshell32 -luser32'
 ```
 
-From macOS:
+#### Cross-Compile From macOS
 ```
 brew install make mingw-w64
 
