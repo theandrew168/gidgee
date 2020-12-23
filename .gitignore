@@ -3,6 +3,7 @@ libgidgee.a
 libgidgee.so
 *.ppm
 venv/
+.vscode/
 
 # Prerequisites
 *.d

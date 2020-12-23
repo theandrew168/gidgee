@@ -63,8 +63,8 @@ main(int argc, char* argv[])
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
     GLFWwindow* window = NULL;
-    if (fullscreen) window = glfwCreateWindow(mode->width, mode->height, "Flappy Bird", monitor, NULL);
-    else window = glfwCreateWindow(1280, 720, "Flappy Bird", NULL, NULL);
+    if (fullscreen) window = glfwCreateWindow(mode->width, mode->height, "Gidgee Physics", monitor, NULL);
+    else window = glfwCreateWindow(1280, 720, "Gidgee Physics", NULL, NULL);
     if (window == NULL) {
         const char* error = NULL;
         glfwGetError(&error);
