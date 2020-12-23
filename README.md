@@ -11,7 +11,7 @@ The package name on Debian-based distributions is `libglfw3-dev`.
 
 ### Vulkan
 Gidgee depends on having a recent version of the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) installed.
-Consult the install guide for your preferred platform ([Windows](https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html), [macOS](https://vulkan.lunarg.com/doc/sdk/latest/mac/getting_started.html), [Linux](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html))
+Consult the install guide for your preferred platform ([Windows](https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html), [macOS](https://vulkan.lunarg.com/doc/sdk/latest/mac/getting_started.html), [Linux](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)) to get this up and running correctly.
 
 ## Building
 This project is built using POSIX-compatible [make](https://pubs.opengroup.org/onlinepubs/009695399/utilities/make.html).
@@ -38,7 +38,14 @@ make LDLIBS='-Lvendor/lib64/macos/ -lglfw3  \
 Windows binaries can be built natively or cross-compiled from Linux or macOS.
 
 #### Native
-With a recent version of [Visual Studio](https://visualstudio.microsoft.com/downloads/) installed.
+With a recent version of [Visual Studio](https://visualstudio.microsoft.com/downloads/) installed:
+```
+scripts\shell.bat
+scripts\build.bat
+```
+
+The `scripts\shell.bat` script assumes that Visual Studio 2019 Community Edition is installed.
+If you are using different version then update this script accordingly.
 
 #### Cross-Compile From Linux
 ```
