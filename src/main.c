@@ -38,9 +38,7 @@ main(int argc, char* argv[])
     }
 
     if (!glfwInit()) {
-        const char* error = NULL;
-        glfwGetError(&error);
-        fprintf(stderr, "failed to init GLFW3: %s\n", error);
+        fprintf(stderr, "failed to init GLFW3");
         return EXIT_FAILURE;
     }
 
@@ -62,9 +60,7 @@ main(int argc, char* argv[])
     if (fullscreen) window = glfwCreateWindow(mode->width, mode->height, "Flappy Bird", monitor, NULL);
     else window = glfwCreateWindow(1280, 720, "Flappy Bird", NULL, NULL);
     if (window == NULL) {
-        const char* error = NULL;
-        glfwGetError(&error);
-        fprintf(stderr, "failed to create GLFW3 window: %s\n", error);
+        fprintf(stderr, "failed to create GLFW3 window:");
 
         glfwTerminate();
         return EXIT_FAILURE;
