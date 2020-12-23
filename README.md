@@ -14,9 +14,8 @@ Gidgee depends on having a recent version of the [Vulkan SDK](https://vulkan.lun
 Consult the install guide for your preferred platform ([Windows](https://vulkan.lunarg.com/doc/sdk/latest/windows/getting_started.html), [macOS](https://vulkan.lunarg.com/doc/sdk/latest/mac/getting_started.html), [Linux](https://vulkan.lunarg.com/doc/sdk/latest/linux/getting_started.html)) to get this up and running correctly.
 
 ## Building
-This project is built using POSIX-compatible [make](https://pubs.opengroup.org/onlinepubs/009695399/utilities/make.html).
-For unix-like systems, it can be built natively.
-For Windows builds, [mingw-w64](http://mingw-w64.org/doku.php) is used to cross-compile the project from a unix-like system.
+This project is built using POSIX-compatible [make](https://pubs.opengroup.org/onlinepubs/009695399/utilities/make.html) on unix-like systems and a simple batch file on Windows.
+Windows binaries can also be cross-compiled from a unix-like system via [mingw-w64](http://mingw-w64.org/doku.php).
 
 ### Linux
 ```
