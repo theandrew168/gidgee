@@ -5,9 +5,17 @@
 
 #include <vulkan/vulkan.h>
 
-#define VULKAN_FUNCTIONS                  \
-    VULKAN_FUNCTION(vkDestroyInstance)    \
+#define VULKAN_FUNCTIONS  \
+    VULKAN_FUNCTION(vkDestroyInstance)  \
     VULKAN_FUNCTION(vkDestroySurfaceKHR)  \
+    VULKAN_FUNCTION(vkEnumeratePhysicalDevices)  \
+    VULKAN_FUNCTION(vkGetPhysicalDeviceProperties)  \
+    VULKAN_FUNCTION(vkGetPhysicalDeviceFeatures)  \
+    VULKAN_FUNCTION(vkGetPhysicalDeviceQueueFamilyProperties)  \
+    VULKAN_FUNCTION(vkGetPhysicalDeviceSurfaceSupportKHR)  \
+    VULKAN_FUNCTION(vkEnumerateDeviceExtensionProperties)  \
+    VULKAN_FUNCTION(vkGetPhysicalDeviceSurfaceFormatsKHR)  \
+    VULKAN_FUNCTION(vkGetPhysicalDeviceSurfacePresentModesKHR)
 
 // some functions can be loaded prior to obtaining a vulkan instance:
 // https://stackoverflow.com/questions/8648428/an-error-occurred-while-validating-hresult-8000000a

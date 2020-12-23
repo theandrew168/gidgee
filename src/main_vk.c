@@ -116,6 +116,9 @@ main(int argc, char* argv[])
 
     free(vk_layers);
 
+    // TODO: ensure available extensions subset of required extensions
+    // TODO: ensure available layers subset of required layers
+
     VkInstanceCreateInfo instance_create_info = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
         .pApplicationInfo = &(VkApplicationInfo){
@@ -143,6 +146,185 @@ main(int argc, char* argv[])
     if (glfwCreateWindowSurface(instance, window, NULL, &surface) != VK_SUCCESS) {
         fprintf(stderr, "failed to create Vulkan surface\n");
         return EXIT_FAILURE;
+    }
+
+    // query number of Vulkan devices
+    uint32_t physical_device_count = 0;
+    vkEnumeratePhysicalDevices(instance, &physical_device_count, NULL);
+
+    // abort if no devices are available
+    if (physical_device_count == 0) {
+        fprintf(stderr, "no Vulkan physical devices available\n");
+        return EXIT_FAILURE;
+    }
+
+    // allocate buffer to hold device info
+    VkPhysicalDevice* physical_devices = malloc(physical_device_count * sizeof(VkPhysicalDevice));
+    assert(physical_devices != NULL);
+
+    // query Vulkan device info
+    vkEnumeratePhysicalDevices(instance, &physical_device_count, physical_devices);
+
+    // declare which device extensions we want
+    const char* device_extensions[] = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    };
+    uint32_t device_extension_count = sizeof(device_extensions) / sizeof(*device_extensions);
+
+    // keep track of which physical device to use and its queue families
+    VkPhysicalDevice physical_device = VK_NULL_HANDLE;
+    long device_graphics_queue = -1;
+    long device_presentation_queue = -1;
+
+    // check devices for first one that:
+    // 1. has at least one graphics queue
+    // 2. has at least one presentation queue
+    for (uint32_t i = 0; i < physical_device_count; i++) {
+        long graphics_queue = -1;
+        long presentation_queue = -1;
+        bool swapchain_support = false;
+        bool swapchain_viable = true;
+
+        // query device properties
+        VkPhysicalDeviceProperties properties = { 0 };
+        vkGetPhysicalDeviceProperties(physical_devices[i], &properties);
+
+        // query device features
+        VkPhysicalDeviceFeatures features = { 0 };
+        vkGetPhysicalDeviceFeatures(physical_devices[i], &features);
+
+        // summarize device properties
+        printf("Device %d: %s\n", i + 1, properties.deviceName);
+        if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+            printf("  + discrete GPU\n");
+        } else if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) {
+            printf("  + integrated GPU\n");
+        } else {
+            printf("  - other GPU\n");
+        }
+
+        // summarize device features
+        if (features.geometryShader) {
+            printf("  + supports geometry shaders\n");
+        } else {
+            printf("  - does not support geometry shaders\n");
+        }
+
+        // query device queue families
+        uint32_t queue_family_count = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(physical_devices[i], &queue_family_count, NULL);
+        VkQueueFamilyProperties* queue_families = malloc(queue_family_count * sizeof(VkQueueFamilyProperties));
+        assert(queue_families != NULL);
+        vkGetPhysicalDeviceQueueFamilyProperties(physical_devices[i], &queue_family_count, queue_families);
+
+        // check queue family capabilities
+        for (uint32_t queue = 0; queue < queue_family_count; queue++) {
+            // check queue family for graphics capabilities
+            if (queue_families[queue].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+                if (graphics_queue == -1) graphics_queue = queue;
+            }
+
+            // check queue family for presentation capabilities
+            VkBool32 supports_presentation = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(physical_devices[i], queue, surface, &supports_presentation);
+            if (supports_presentation) {
+                if (presentation_queue == -1) presentation_queue = queue;
+            }
+        }
+
+        free(queue_families);
+
+        // summarize graphics queue families
+        if (graphics_queue != -1) {
+            printf("  + supports graphics queues\n");
+        } else {
+            printf("  - does not support graphics queues\n");
+        }
+
+        // summarize presentation queue families
+        if (presentation_queue != -1) {
+            printf("  + supports presentation queues\n");
+        } else {
+            printf("  - does not support presentation queues\n");
+        }
+
+        // query available device extensions
+        uint32_t ext_count = 0;
+        vkEnumerateDeviceExtensionProperties(physical_devices[i], NULL, &ext_count, NULL);
+        VkExtensionProperties* exts = malloc(ext_count * sizeof(VkExtensionProperties));
+        assert(exts != NULL);
+        vkEnumerateDeviceExtensionProperties(physical_devices[i], NULL, &ext_count, exts);
+
+        // debug print the available device extensions
+        for (long ext = 0; ext < ext_count; ext++) {
+            printf("Available Device Extension: %s\n", exts[ext].extensionName);
+        }
+
+        // ensure availability of VK_KHR_swapchain device extension
+        // TODO: check for a proper subset of device_extensions
+        for (uint32_t ext = 0; ext < ext_count; ext++) {
+            if (strcmp(exts[ext].extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
+                swapchain_support = true;
+            }
+        }
+
+        free(exts);
+
+        // summarize swapchain support
+        if (swapchain_support) {
+            printf("  + supports swapchain\n");
+        } else {
+            printf("  - does not support swapchain\n");
+        }
+
+        // ensure at least one image format is supported
+        uint32_t format_count = 0;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(physical_devices[i], surface, &format_count, NULL);
+        if (format_count > 0) {
+            printf("  + supports image formats\n");
+        } else {
+            printf("  - does not support image formats\n");
+            swapchain_viable = false;
+        }
+
+        // ensure at least one present mode is supported
+        uint32_t present_mode_count = 0;
+        vkGetPhysicalDeviceSurfacePresentModesKHR(physical_devices[i], surface, &present_mode_count, NULL);
+        if (present_mode_count > 0) {
+            printf("  + supports present modes\n");
+        } else {
+            printf("  - does not support present modes\n");
+            swapchain_viable = false;
+        }
+
+        // if this device won't work, skip it
+        if (graphics_queue == -1) continue;
+        if (presentation_queue == -1) continue;
+        if (swapchain_support == false) continue;
+        if (swapchain_viable == false) continue;
+
+        // choose a device if this one is viable and the choice hasn't been made yet
+        if (physical_device == VK_NULL_HANDLE) {
+            physical_device = physical_devices[i];
+            device_graphics_queue = graphics_queue;
+            device_presentation_queue = presentation_queue;
+        }
+    }
+
+    free(physical_devices);
+
+    // summarize physical device selection
+    if (physical_device == VK_NULL_HANDLE
+        || device_graphics_queue == -1
+        || device_presentation_queue == -1) {
+        fprintf(stderr, "no suitable Vulkan devices are available\n");
+        return EXIT_FAILURE;
+    } else {
+        VkPhysicalDeviceProperties properties = { 0 };
+        vkGetPhysicalDeviceProperties(physical_device, &properties);
+        printf("Moving forward with device: %s\n", properties.deviceName);
+        printf("Device graphics queue: %ld\n", device_graphics_queue);
+        printf("Device presentation queue: %ld\n", device_presentation_queue);
     }
 
     double last_second = glfwGetTime();
