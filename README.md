@@ -2,7 +2,7 @@
 Experiments in real-time rendering and rigid body physics
 
 ## Dependencies
-Gidgee depends on two other open-source projects: [GLFW](https://www.glfw.org/) and [Vulkan](https://www.khronos.org/vulkan/).
+Gidgee depends on two other projects: [GLFW](https://www.glfw.org/) and [Vulkan](https://www.khronos.org/vulkan/).
 
 ### GLFW
 On Windows and macOS, this dependency is bundled into the project and therefore requires no special installation steps.
