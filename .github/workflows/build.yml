@@ -1,0 +1,23 @@
+name: Build All Platforms
+
+on: push
+
+jobs:
+  build_linux:
+    name: Linux Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: make
+  build_macos:
+    name: macOS Build
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: make LDLIBS='-Lvendor/lib64/macos/ -lglfw3 -framework Cocoa -framework IOKit'
+  build_windows:
+    name: Windows Build
+    runs-on: windows-latest
+    - uses: actions/checkout@v2
+    - run: scripts/shell_enterprise.bat && scripts/build.bat
+      shell: cmd
