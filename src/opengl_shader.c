@@ -5,6 +5,7 @@
 #include <GL/glcorearb.h>
 
 #include "opengl_loader.h"
+#include "opengl_shader.h"
 
 
 enum {

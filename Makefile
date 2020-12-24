@@ -27,17 +27,21 @@ all: libgidgee.a libgidgee.so gidgee
 
 # Declare library sources
 libgidgee_sources =      \
+  src/opengl_buffer.c    \
   src/opengl_loader.c    \
   src/opengl_renderer.c  \
   src/opengl_shader.c    \
+  src/opengl_texture.c   \
   src/vulkan_loader.c    \
   src/vulkan_renderer.c
 libgidgee_objects = $(libgidgee_sources:.c=.o)
 
 # Express dependencies between object and source files
+src/opengl_buffer.o: src/opengl_buffer.c src/opengl_buffer.h src/opengl_loader.h
 src/opengl_loader.o: src/opengl_loader.c src/opengl_loader.h
 src/opengl_renderer.o: src/opengl_renderer.c src/opengl_renderer.h src/opengl_loader.h
 src/opengl_shader.o: src/opengl_shader.c src/opengl_shader.h src/opengl_loader.h
+src/opengl_texture.o: src/opengl_texture.c src/opengl_texture.h src/opengl_loader.h
 src/vulkan_loader.o: src/vulkan_loader.c src/vulkan_loader.h
 src/vulkan_renderer.o: src/vulkan_renderer.c src/vulkan_renderer.h src/vulkan_loader.h
 

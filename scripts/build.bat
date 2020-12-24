@@ -2,9 +2,11 @@
 
 :: list of source files to be compiled
 set SOURCES=                  ^
+  %cd%\src\opengl_buffer.c    ^
   %cd%\src\opengl_loader.c    ^
   %cd%\src\opengl_renderer.c  ^
   %cd%\src\opengl_shader.c    ^
+  %cd%\src\opengl_texture.c   ^
   %cd%\src\vulkan_loader.c    ^
   %cd%\src\vulkan_renderer.c  ^
   %cd%\src\main.c
