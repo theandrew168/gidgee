@@ -1,10 +1,13 @@
 @echo off
 
 :: list of source files to be compiled
-set SOURCES=                ^
-  %cd%\src\opengl_loader.c  ^
-  %cd%\src\vulkan_loader.c  ^
-  %cd%\src\main_vk.c
+set SOURCES=                  ^
+  %cd%\src\opengl_loader.c    ^
+  %cd%\src\opengl_renderer.c  ^
+  %cd%\src\opengl_shader.c    ^
+  %cd%\src\vulkan_loader.c    ^
+  %cd%\src\vulkan_renderer.c  ^
+  %cd%\src\main.c
 
 :: References:
 :: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options

@@ -1,11 +1,15 @@
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include <GL/glcorearb.h>
+#include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
-#include "opengl_loader.h"
+#include "opengl_renderer.h"
 
 static void
 print_usage(const char* arg0)
@@ -13,16 +17,18 @@ print_usage(const char* arg0)
     printf("usage: %s [options]\n", arg0);
     printf("\n");
     printf("Options:\n");
-    printf("  -h --help        print this help\n");
-    printf("  -f --fullscreen  fullscreen window\n");
-    printf("  -v --vsync       enable vsync\n");
+    printf("  -h  --help        print this help\n");
+    printf("  -f  --fullscreen  fullscreen window\n");
+    printf("  -r  --resizable   resizable window\n");
+    printf("  -vk --vulkan      use vulkan renderer\n");
 }
 
 int
 main(int argc, char* argv[])
 {
     bool fullscreen = false;
-    bool vsync = false;
+    bool resizable = false;
+    bool use_vk = false;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
@@ -32,22 +38,39 @@ main(int argc, char* argv[])
         if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--fullscreen") == 0) {
             fullscreen = true;
         }
-        if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--vsync") == 0) {
-            vsync = true;
+        if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--resizable") == 0) {
+            resizable = true;
+        }
+        if (strcmp(argv[i], "-vk") == 0 || strcmp(argv[i], "--vulkan") == 0) {
+            use_vk = true;
         }
     }
 
     if (!glfwInit()) {
-        fprintf(stderr, "failed to init GLFW3!\n");
+        fprintf(stderr, "Failed to initialize GLFW3!\n");
         return EXIT_FAILURE;
     }
 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+    if (use_vk) {
+        fprintf(stderr, "Vulkan renderer isn't implemented yet :(\n");
+        return EXIT_FAILURE;
+    }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    if (use_vk && !glfwVulkanSupported()) {
+        fprintf(stderr, "Vulkan requested but not available!\n");
+        fprintf(stderr, "Please install a recent version of the Vulkan SDK:\n");
+        fprintf(stderr, "https://vulkan.lunarg.com/sdk/home\n");
+        return EXIT_FAILURE;
+    }
+
+    if (use_vk) {
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    } else {
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    }
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
     const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -56,27 +79,29 @@ main(int argc, char* argv[])
     glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
     glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
 
+    glfwWindowHint(GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
+
     GLFWwindow* window = NULL;
-    if (fullscreen) window = glfwCreateWindow(mode->width, mode->height, "Flappy Bird", monitor, NULL);
-    else window = glfwCreateWindow(1280, 720, "Flappy Bird", NULL, NULL);
+    if (fullscreen) {
+        window = glfwCreateWindow(mode->width, mode->height, "Gidgee Physics", monitor, NULL);
+    } else {
+        window = glfwCreateWindow(1280, 720, "Gidgee Physics", NULL, NULL);
+    }
+
     if (window == NULL) {
         fprintf(stderr, "failed to create GLFW3 window!\n");
-
-        glfwTerminate();
         return EXIT_FAILURE;
     }
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(vsync ? 1 : 0);
-    opengl_loader_load_functions();
 
-    printf("OpenGL Vendor:   %s\n", glGetString(GL_VENDOR));
-    printf("OpenGL Renderer: %s\n", glGetString(GL_RENDERER));
-    printf("OpenGL Version:  %s\n", glGetString(GL_VERSION));
-    printf("GLSL Version:    %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    struct opengl_renderer renderer = { 0 };
+    if (opengl_renderer_init(&renderer, window) != 0) {
+        fprintf(stderr, "failed to init OpenGL renderer\n");
+        return EXIT_FAILURE;
+    }
 
-    double last_second = glfwGetTime();
+    double last_second = 0.0;
     double last_frame = last_second;
     long frame_count = 0;
 
@@ -91,10 +116,8 @@ main(int argc, char* argv[])
 
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
-        glViewport(0, 0, width, height);
 
-        glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        opengl_renderer_clear(&renderer);
 
         frame_count++;
         if (glfwGetTime() - last_second >= 1.0) {
@@ -103,10 +126,11 @@ main(int argc, char* argv[])
             last_second += 1.0;
         }
 
-        glfwSwapBuffers(window);
+        opengl_renderer_present(&renderer);
         glfwPollEvents();
     }
 
+    opengl_renderer_term(&renderer);
     glfwDestroyWindow(window);
     glfwTerminate();
 

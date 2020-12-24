@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -8,66 +7,19 @@
 #include <GLFW/glfw3.h>
 
 #include "vulkan_loader.h"
+#include "vulkan_renderer.h"
 
-static void
-print_usage(const char* arg0)
-{
-    printf("usage: %s [options]\n", arg0);
-    printf("\n");
-    printf("Options:\n");
-    printf("  -h --help        print this help\n");
-    printf("  -f --fullscreen  fullscreen window\n");
-    printf("  -v --vsync       enable vsync\n");
-}
+// Steps:
+// Vulkan supported
+// Instance creation (valid extensions, valid layers)
+// Device selection (graphics queue, presentation queue, swapchain support)
+// Device creation
 
 int
-main(int argc, char* argv[])
+vulkan_renderer_init(struct vulkan_renderer* renderer, GLFWwindow* window)
 {
-    bool fullscreen = false;
-    bool vsync = false;
-
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-            print_usage(argv[0]);
-            return EXIT_SUCCESS;
-        }
-        if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--fullscreen") == 0) {
-            fullscreen = true;
-        }
-        if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--vsync") == 0) {
-            vsync = true;
-        }
-    }
-
-    if (!glfwInit()) {
-        fprintf(stderr, "failed to init GLFW3!\n");
-        return EXIT_FAILURE;
-    }
-
-    if (!glfwVulkanSupported()) {
-        fprintf(stderr, "Vulkan is not supported on this device / platform!\n");
-        glfwTerminate();
-        return EXIT_FAILURE;
-    }
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-    glfwWindowHint(GLFW_RED_BITS, mode->redBits);
-    glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
-    glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
-    glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-
-    GLFWwindow* window = NULL;
-    if (fullscreen) window = glfwCreateWindow(mode->width, mode->height, "Gidgee Physics", monitor, NULL);
-    else window = glfwCreateWindow(1280, 720, "Gidgee Physics", NULL, NULL);
-    if (window == NULL) {
-        fprintf(stderr, "failed to create GLFW3 window!\n");
-        glfwTerminate();
-        return EXIT_FAILURE;
-    }
+    assert(renderer != NULL);
+    assert(window != NULL);
 
     // load vkCreateInstance function
     vulkan_loader_load_initial();
@@ -132,7 +84,7 @@ main(int argc, char* argv[])
     VkInstance instance = VK_NULL_HANDLE;
     if (vkCreateInstance(&instance_create_info, NULL, &instance) != VK_SUCCESS) {
         fprintf(stderr, "failed to create Vulkan instance\n");
-        return EXIT_FAILURE;
+        return 1;
     }
 
     // load all other Vulkan functions
@@ -141,7 +93,7 @@ main(int argc, char* argv[])
     VkSurfaceKHR surface = VK_NULL_HANDLE;
     if (glfwCreateWindowSurface(instance, window, NULL, &surface) != VK_SUCCESS) {
         fprintf(stderr, "failed to create Vulkan surface\n");
-        return EXIT_FAILURE;
+        return 1;
     }
 
     // query number of Vulkan devices
@@ -151,7 +103,7 @@ main(int argc, char* argv[])
     // abort if no devices are available
     if (physical_device_count == 0) {
         fprintf(stderr, "no Vulkan physical devices available\n");
-        return EXIT_FAILURE;
+        return 1;
     }
 
     // allocate buffer to hold device info
@@ -160,12 +112,6 @@ main(int argc, char* argv[])
 
     // query Vulkan device info
     vkEnumeratePhysicalDevices(instance, &physical_device_count, physical_devices);
-
-    // declare which device extensions we want
-    const char* device_extensions[] = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-    };
-    uint32_t device_extension_count = sizeof(device_extensions) / sizeof(*device_extensions);
 
     // keep track of which physical device to use and its queue families
     VkPhysicalDevice physical_device = VK_NULL_HANDLE;
@@ -252,12 +198,11 @@ main(int argc, char* argv[])
         vkEnumerateDeviceExtensionProperties(physical_devices[i], NULL, &ext_count, exts);
 
         // debug print the available device extensions
-        // for (long ext = 0; ext < ext_count; ext++) {
-        //     printf("Available Device Extension: %s\n", exts[ext].extensionName);
-        // }
+//        for (long ext = 0; ext < ext_count; ext++) {
+//            printf("Available Device Extension: %s\n", exts[ext].extensionName);
+//        }
 
         // ensure availability of VK_KHR_swapchain device extension
-        // TODO: check for a proper subset of device_extensions
         for (uint32_t ext = 0; ext < ext_count; ext++) {
             if (strcmp(exts[ext].extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0) {
                 swapchain_support = true;
@@ -314,7 +259,7 @@ main(int argc, char* argv[])
         || device_graphics_queue == -1
         || device_presentation_queue == -1) {
         fprintf(stderr, "no suitable Vulkan devices are available\n");
-        return EXIT_FAILURE;
+        return 1;
     } else {
         VkPhysicalDeviceProperties properties = { 0 };
         vkGetPhysicalDeviceProperties(physical_device, &properties);
@@ -323,36 +268,21 @@ main(int argc, char* argv[])
         printf("Device presentation queue: %ld\n", device_presentation_queue);
     }
 
-    double last_second = glfwGetTime();
-    double last_frame = last_second;
-    long frame_count = 0;
+    renderer->window = window;
+    renderer->instance = instance;
+    renderer->surface = surface;
+//    renderer->device = device;
+//    renderer->swapchain = swapchain;
 
-    while (!glfwWindowShouldClose(window)) {
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-        }
+    return 0;
+}
 
-        double now = glfwGetTime();
-        double delta = now - last_frame;
-        last_frame = now;
+int
+vulkan_renderer_term(struct vulkan_renderer* renderer)
+{
+    assert(renderer != NULL);
 
-        int width, height;
-        glfwGetFramebufferSize(window, &width, &height);
-
-        frame_count++;
-        if (glfwGetTime() - last_second >= 1.0) {
-            printf("FPS: %ld  (%lf ms/frame)\n", frame_count, 1000.0/frame_count);
-            frame_count = 0;
-            last_second += 1.0;
-        }
-
-        glfwPollEvents();
-    }
-
-    vkDestroySurfaceKHR(instance, surface, NULL);
-    vkDestroyInstance(instance, NULL);
-    glfwDestroyWindow(window);
-    glfwTerminate();
-
-    return EXIT_SUCCESS;
+    vkDestroySurfaceKHR(renderer->instance, renderer->surface, NULL);
+    vkDestroyInstance(renderer->instance, NULL);
+    return 0;
 }

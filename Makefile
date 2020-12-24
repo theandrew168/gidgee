@@ -26,14 +26,20 @@ default: gidgee
 all: libgidgee.a libgidgee.so gidgee
 
 # Declare library sources
-libgidgee_sources =    \
-  src/opengl_loader.c  \
-  src/vulkan_loader.c
+libgidgee_sources =      \
+  src/opengl_loader.c    \
+  src/opengl_renderer.c  \
+  src/opengl_shader.c    \
+  src/vulkan_loader.c    \
+  src/vulkan_renderer.c
 libgidgee_objects = $(libgidgee_sources:.c=.o)
 
 # Express dependencies between object and source files
 src/opengl_loader.o: src/opengl_loader.c src/opengl_loader.h
+src/opengl_renderer.o: src/opengl_renderer.c src/opengl_renderer.h src/opengl_loader.h
+src/opengl_shader.o: src/opengl_shader.c src/opengl_shader.h src/opengl_loader.h
 src/vulkan_loader.o: src/vulkan_loader.c src/vulkan_loader.h
+src/vulkan_renderer.o: src/vulkan_renderer.c src/vulkan_renderer.h src/vulkan_loader.h
 
 # Build the static library
 libgidgee.a: $(libgidgee_objects)
@@ -52,9 +58,9 @@ libgidgee.so: $(libgidgee_objects)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 # Compile and link the main executable
-gidgee: src/main_vk.c libgidgee.a
+gidgee: src/main.c libgidgee.a
 	@echo "EXE     $@"
-	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ src/main_vk.c libgidgee.a $(LDLIBS)
+	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ src/main.c libgidgee.a $(LDLIBS)
 
 # Helper target that cleans up build artifacts
 .PHONY: clean
