@@ -18,6 +18,7 @@ jobs:
   build_windows:
     name: Windows Build
     runs-on: windows-latest
+    steps:
     - uses: actions/checkout@v2
     - run: scripts/shell_enterprise.bat && scripts/build.bat
       shell: cmd
