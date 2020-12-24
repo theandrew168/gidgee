@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - run: apt install libglfw3-dev
     - run: make
   build_macos:
     name: macOS Build
