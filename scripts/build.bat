@@ -7,6 +7,7 @@ set SOURCES=                  ^
   %cd%\src\opengl_renderer.c  ^
   %cd%\src\opengl_shader.c    ^
   %cd%\src\opengl_texture.c   ^
+  %cd%\src\vertex.c           ^
   %cd%\src\vulkan_loader.c    ^
   %cd%\src\vulkan_renderer.c  ^
   %cd%\src\main.c

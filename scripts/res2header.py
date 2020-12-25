@@ -23,30 +23,57 @@ def grouper(iterable, n, fillvalue=None):
 
 def model2header(resource_file):
     name, ext = os.path.splitext(os.path.basename(resource_file))
+    vertex_size = 0
     format = ''
 
     vertices = []
     model = pywavefront.Wavefront(resource_file)
     for _, material in model.materials.items():
-        format = material.vertex_format
-        for vertex in material.vertices:
-            vertices.append(vertex)
+        if material.vertex_format == 'V3F':
+            format = 'VERTEX_FORMAT_POSITION'
+            vertex_size = 3
+        elif material.vertex_format == 'T2F_V3F':
+            format = 'VERTEX_FORMAT_POSITION | VERTEX_FORMAT_TEXCOORD'
+            vertex_size = 5
+        elif material.vertex_format == 'N3F_V3F':
+            format = 'VERTEX_FORMAT_POSITION | VERTEX_FORMAT_NORMAL'
+            vertex_size = 6
+        elif material.vertex_format == 'T2F_N3F_V3F':
+            format = 'VERTEX_FORMAT_POSITION | VERTEX_FORMAT_TEXCOORD | VERTEX_FORMAT_NORMAL'
+            vertex_size = 8
+        else:
+            raise SystemExit('Unknown model format: {}'.format(format))
 
-    vertex_size = 0
-    if format == 'V3F':
-        format = 'MODEL_FORMAT_V3F'
-        vertex_size = 3
-    elif format == 'T2F_V3F':
-        format = 'MODEL_FORMAT_T2F_V3F'
-        vertex_size = 5
-    elif format == 'N3F_V3F':
-        format = 'MODEL_FORMAT_N3F_V3F'
-        vertex_size = 6
-    elif format == 'T2F_N3F_V3F':
-        format = 'MODEL_FORMAT_T2F_N3F_V3F'
-        vertex_size = 8
-    else:
-        raise SystemExit('Unknown model format: {}'.format(format))
+        # group vertex attribs back to consistent order:
+        # position, texcoord, normal
+        for vertex in grouper(material.vertices, vertex_size):
+            vertex = list(vertex)
+            if material.vertex_format == 'V3F':
+                vertices.append(vertex[0])
+                vertices.append(vertex[1])
+                vertices.append(vertex[2])
+            elif material.vertex_format == 'T2F_V3F':
+                vertices.append(vertex[2])
+                vertices.append(vertex[3])
+                vertices.append(vertex[4])
+                vertices.append(vertex[0])
+                vertices.append(vertex[1])
+            elif material.vertex_format == 'N3F_V3F':
+                vertices.append(vertex[3])
+                vertices.append(vertex[4])
+                vertices.append(vertex[5])
+                vertices.append(vertex[0])
+                vertices.append(vertex[1])
+                vertices.append(vertex[2])
+            elif material.vertex_format == 'T2F_N3F_V3F':
+                vertices.append(vertex[5])
+                vertices.append(vertex[6])
+                vertices.append(vertex[7])
+                vertices.append(vertex[0])
+                vertices.append(vertex[1])
+                vertices.append(vertex[2])
+                vertices.append(vertex[3])
+                vertices.append(vertex[4])
 
     count = len(vertices) // vertex_size
     guard = 'MODELS_{}_H_INCLUDED'.format(name.upper())
@@ -57,7 +84,7 @@ def model2header(resource_file):
     s.write('#ifndef {}\n'.format(guard))
     s.write('#define {}\n'.format(guard))
     s.write('\n')
-    s.write('#include "model.h"\n')
+    s.write('#include "vertex.h"\n')
     s.write('\n')
     s.write('static const char MODEL_{}_PATH[] = "{}";\n'.format(name.upper(), resource_file))
     s.write('static const int MODEL_{}_FORMAT = {};\n'.format(name.upper(), format))

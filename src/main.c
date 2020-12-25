@@ -10,9 +10,10 @@
 #include <GLFW/glfw3.h>
 
 #include "opengl_buffer.h"
+#include "opengl_loader.h"
 #include "opengl_renderer.h"
 #include "opengl_shader.h"
-#include "opengl_texture.h"
+#include "vertex.h"
 
 static void
 print_usage(const char* arg0)
@@ -104,6 +105,37 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    long vertex_count = 6;
+    float vertices[] = {
+        -0.5f,  0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+         0.5f,  0.5f, 0.0f,
+         0.5f,  0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+    }; 
+    unsigned int vbo = opengl_buffer_create(VERTEX_FORMAT_POSITION, vertices, vertex_count);
+    unsigned int vao = opengl_buffer_config(VERTEX_FORMAT_POSITION, vbo);
+
+    const char vert_source[] =
+        "#version 330 core\n"
+        "layout (location = 0) in vec3 aPos;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "}\n";
+    const char frag_source[] =
+        "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "}\n";
+    unsigned int shader = opengl_shader_compile_and_link(vert_source, frag_source);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     double last_second = 0.0;
     double last_frame = last_second;
     long frame_count = 0;
@@ -119,8 +151,13 @@ main(int argc, char* argv[])
 
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
+        glViewport(0, 0, width, height);
 
         opengl_renderer_clear(&renderer);
+
+        glUseProgram(shader);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, vertex_count);
 
         frame_count++;
         if (glfwGetTime() - last_second >= 1.0) {
