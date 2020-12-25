@@ -105,36 +105,39 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    long vertex_count = 6;
+    int vertex_format = VERTEX_FORMAT_POSITION | VERTEX_FORMAT_COLOR;
+    long vertex_count = 3;
     float vertices[] = {
-        -0.5f,  0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-         0.5f,  0.5f, 0.0f,
-         0.5f,  0.5f, 0.0f,
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
+        // positions         // colors
+         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   // top 
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
     }; 
-    unsigned int vbo = opengl_buffer_create(VERTEX_FORMAT_POSITION, vertices, vertex_count);
-    unsigned int vao = opengl_buffer_config(VERTEX_FORMAT_POSITION, vbo);
+    unsigned int vbo = opengl_buffer_create(vertex_format, vertices, vertex_count);
+    unsigned int vao = opengl_buffer_config(vertex_format, vbo);
 
     const char vert_source[] =
         "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"
+        "layout (location = 0) in vec3 aPos;\n"   // the position variable has attribute position 0
+        "layout (location = 3) in vec3 aColor;\n" // the color variable has attribute position 3
+        "\n"
+        "out vec3 ourColor;\n" // output a color to the fragment shader
         "\n"
         "void main()\n"
         "{\n"
-        "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+        "    gl_Position = vec4(aPos, 1.0);\n"
+        "    ourColor = aColor;\n" // set ourColor to the input color we got from the vertex data
         "}\n";
     const char frag_source[] =
         "#version 330 core\n"
         "out vec4 FragColor;\n"
+        "in vec3 ourColor;\n"
         "\n"
         "void main()\n"
         "{\n"
-        "    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+        "    FragColor = vec4(ourColor, 1.0f);\n"
         "}\n";
     unsigned int shader = opengl_shader_compile_and_link(vert_source, frag_source);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     double last_second = 0.0;
     double last_frame = last_second;

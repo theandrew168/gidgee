@@ -19,6 +19,7 @@
     OPENGL_FUNCTION(glClear, PFNGLCLEARPROC)                                        \
     OPENGL_FUNCTION(glClearColor, PFNGLCLEARCOLORPROC)                              \
     OPENGL_FUNCTION(glEnable, PFNGLENABLEPROC)                                      \
+    OPENGL_FUNCTION(glDisable, PFNGLENABLEPROC)                                     \
     OPENGL_FUNCTION(glDepthFunc, PFNGLDEPTHFUNCPROC)                                \
     OPENGL_FUNCTION(glCullFace, PFNGLCULLFACEPROC)                                  \
     OPENGL_FUNCTION(glBlendFunc, PFNGLBLENDFUNCPROC)                                \
