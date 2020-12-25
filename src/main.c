@@ -9,7 +9,10 @@
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
 
+#include "opengl_buffer.h"
 #include "opengl_renderer.h"
+#include "opengl_shader.h"
+#include "opengl_texture.h"
 
 static void
 print_usage(const char* arg0)

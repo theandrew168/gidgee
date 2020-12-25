@@ -26,7 +26,7 @@ buffer_vertex_size(int format)
 }
 
 unsigned int
-buffer_buffer_create(int format, long count, const float* vertices)
+opengl_buffer_create(int format, long count, const float* vertices)
 {
     // calculate size of vertex buffer in bytes
     long size = count * buffer_vertex_size(format);
@@ -41,7 +41,7 @@ buffer_buffer_create(int format, long count, const float* vertices)
 }
 
 unsigned int
-buffer_buffer_config(int format, int buffer)
+opengl_buffer_config(int format, int buffer)
 {
     unsigned int vao;
     glGenVertexArrays(1, &vao);

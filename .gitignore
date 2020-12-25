@@ -4,6 +4,7 @@ libgidgee.so
 *.ppm
 venv/
 .vscode/
+res/models/*.h
 
 # Prerequisites
 *.d
@@ -11,7 +12,7 @@ venv/
 # Object files
 *.o
 *.ko
-*.obj
+#*.obj
 *.elf
 
 # Linker output
