@@ -1,0 +1,72 @@
+name: Build, Release, and Upload
+
+on:
+  push:
+    tags:
+      - v*  # matches version tags: v1.0.1, v2, etc
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+  build_linux:
+    name: Linux Build
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Update package listing
+        run: sudo apt update
+      - name: Install dependencies
+        run: sudo apt install libglfw3-dev
+      - name: Build the project
+        run: make
+  build_macos:
+    name: macOS Build
+    needs: release
+    runs-on: macos-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Build the project
+        run: make LDLIBS='-Lvendor/lib64/macos/ -lglfw3 -framework Cocoa -framework IOKit'
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/gidgee
+          asset_name: gidgee-macos-${{ github.ref }}
+          assert_content_type: application/octet-stream
+  build_windows:
+    name: Windows Build
+    needs: release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Build the project
+        run: scripts\shell_enterprise.bat && scripts\build.bat
+        shell: cmd
+      - name: Upload release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/gidgee.exe
+          asset_name: gidgee-windows-${{ github.ref }}.exe
+          assert_content_type: application/octet-stream
