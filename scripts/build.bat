@@ -30,8 +30,9 @@ set CFLAGS=%CFLAGS% /D GLFW_INCLUDE_NONE /D VK_NO_PROTOTYPES
 
 :: /SUBSYSTEM    type of application (CONSOLE for development, WINDOWS for deployment)
 :: /ENTRY        program entry point (always mainCRTStartup)
+:: /OPT          control linker optimizations
 :: /INCREMENTAL  control incremental linking
-set LDFLAGS=/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup /INCREMENTAL:NO
+set LDFLAGS=/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup /OPT:REF /INCREMENTAL:NO
 
 :: /LIBPATH      extra directories to search for libraries
 :: glfw3.lib     open source library for multi-platform OpenGL and Vulkan development
