@@ -1,6 +1,9 @@
 name: Build All Platforms
 
-on: push
+on:
+  push:
+    tags-ignore:
+      - v*  # no need to waste builds on tagged releases
 
 jobs:
   build_linux:

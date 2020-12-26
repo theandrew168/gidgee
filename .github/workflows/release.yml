@@ -50,7 +50,7 @@ jobs:
           upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: ${{ github.workspace }}/gidgee
           asset_name: gidgee-macos-${{ github.ref }}
-          assert_content_type: application/octet-stream
+          asset_content_type: application/octet-stream
   build_windows:
     name: Windows Build
     needs: release
@@ -69,4 +69,4 @@ jobs:
           upload_url: ${{ needs.release.outputs.upload_url }}
           asset_path: ${{ github.workspace }}/gidgee.exe
           asset_name: gidgee-windows-${{ github.ref }}.exe
-          assert_content_type: application/octet-stream
+          asset_content_type: application/octet-stream
