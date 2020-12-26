@@ -2,6 +2,8 @@ name: Build All Platforms
 
 on:
   push:
+    branches:
+      - '**'
     tags-ignore:
       - v*  # no need to waste builds on tagged releases
 
