@@ -18,7 +18,7 @@ jobs:
         run: sudo apt install libglfw3-dev
       - name: Checkout source
         uses: actions/checkout@v2
-      - name: Build the project
+      - name: Build project
         run: make
   build_macos:
     name: macOS Build
@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
-      - name: Build the project
+      - name: Build project
         run: make LDLIBS='-Lvendor/lib64/macos/ -lglfw3 -framework Cocoa -framework IOKit'
   build_windows:
     name: Windows Build
@@ -34,6 +34,6 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v2
-      - name: Build the project
+      - name: Build project
         run: scripts\shell_enterprise.bat && scripts\build.bat
         shell: cmd
