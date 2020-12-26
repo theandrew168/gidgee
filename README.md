@@ -1,6 +1,7 @@
 # gidgee
 Experiments in real-time rendering and rigid body physics
 
+
 ## Dependencies
 Gidgee depends on two other projects: [GLFW](https://www.glfw.org/) and [Vulkan](https://www.khronos.org/vulkan/).
 
