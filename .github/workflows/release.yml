@@ -1,4 +1,4 @@
-name: Build, Release, and Upload
+name: Release macOS and Windows
 
 on:
   push:
@@ -20,20 +20,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-  build_linux:
-    name: Linux Build
-    needs: release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v2
-      - name: Update package listing
-        run: sudo apt update
-      - name: Install dependencies
-        run: sudo apt install libglfw3-dev
-      - name: Build the project
-        run: make
-  build_macos:
+  release_macos:
     name: macOS Build
     needs: release
     runs-on: macos-latest
@@ -51,7 +38,7 @@ jobs:
           asset_path: ${{ github.workspace }}/gidgee
           asset_name: gidgee-macos-${{ github.ref }}
           asset_content_type: application/octet-stream
-  build_windows:
+  release_windows:
     name: Windows Build
     needs: release
     runs-on: windows-latest
