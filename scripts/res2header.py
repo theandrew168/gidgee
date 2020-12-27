@@ -49,31 +49,25 @@ def model2header(resource_file):
         for vertex in grouper(material.vertices, vertex_size):
             vertex = list(vertex)
             if material.vertex_format == 'V3F':
-                vertices.append(vertex[0])
-                vertices.append(vertex[1])
-                vertices.append(vertex[2])
+                position = vertex[0:3]
+                vertices.extend(position)
             elif material.vertex_format == 'T2F_V3F':
-                vertices.append(vertex[2])
-                vertices.append(vertex[3])
-                vertices.append(vertex[4])
-                vertices.append(vertex[0])
-                vertices.append(vertex[1])
+                texcoord = vertex[0:2]
+                position = vectex[2:5]
+                vertices.extend(position)
+                vertices.extend(texcoord)
             elif material.vertex_format == 'N3F_V3F':
-                vertices.append(vertex[3])
-                vertices.append(vertex[4])
-                vertices.append(vertex[5])
-                vertices.append(vertex[0])
-                vertices.append(vertex[1])
-                vertices.append(vertex[2])
+                normal = vertex[0:3]
+                position = vertex[3:6]
+                vertices.extend(position)
+                vertices.extend(normal)
             elif material.vertex_format == 'T2F_N3F_V3F':
-                vertices.append(vertex[5])
-                vertices.append(vertex[6])
-                vertices.append(vertex[7])
-                vertices.append(vertex[0])
-                vertices.append(vertex[1])
-                vertices.append(vertex[2])
-                vertices.append(vertex[3])
-                vertices.append(vertex[4])
+                texcoord = vertex[0:2]
+                normal = vertex[2:5]
+                position = vertex[5:8]
+                vertices.extend(position)
+                vertices.extend(texcoord)
+                vertices.extend(normal)
 
     count = len(vertices) // vertex_size
     guard = 'MODELS_{}_H_INCLUDED'.format(name.upper())
@@ -87,7 +81,7 @@ def model2header(resource_file):
     s.write('#include "vertex.h"\n')
     s.write('\n')
     s.write('static const char MODEL_{}_PATH[] = "{}";\n'.format(name.upper(), resource_file))
-    s.write('static const int MODEL_{}_FORMAT = {};\n'.format(name.upper(), format))
+    s.write('static const int MODEL_{}_VERTEX_FORMAT = {};\n'.format(name.upper(), format))
     s.write('static const long MODEL_{}_VERTEX_COUNT = {};\n'.format(name.upper(), count))
     s.write('static const float MODEL_{}_VERTICES[] = {{\n'.format(name.upper()))
     for group in grouper(vertices, vertex_size):
@@ -140,10 +134,10 @@ def texture2header(resource_file):
     format = texture.mode
     if format == 'RGB':
         row_size = 12
-        format = 'TEXTURE_FORMAT_RGB'
+        format = 'PIXEL_FORMAT_RGB'
     elif format == 'RGBA':
         row_size = 16
-        format = 'TEXTURE_FORMAT_RGBA'
+        format = 'PIXEL_FORMAT_RGBA'
     else:
         raise SystemExit('Unknown texture format: {}'.format(format))
 
@@ -158,10 +152,10 @@ def texture2header(resource_file):
     s.write('#ifndef {}\n'.format(guard))
     s.write('#define {}\n'.format(guard))
     s.write('\n')
-    s.write('#include "texture.h"\n')
+    s.write('#include "pixel.h"\n')
     s.write('\n')
     s.write('static const char TEXTURE_{}_PATH[] = "{}";\n'.format(name.upper(), resource_file))
-    s.write('static const int TEXTURE_{}_FORMAT = {};\n'.format(name.upper(), format))
+    s.write('static const int TEXTURE_{}_PIXEL_FORMAT = {};\n'.format(name.upper(), format))
     s.write('static const long TEXTURE_{}_WIDTH = {};\n'.format(name.upper(), width))
     s.write('static const long TEXTURE_{}_HEIGHT = {};\n'.format(name.upper(), height))
     s.write('static const unsigned char TEXTURE_{}_PIXELS[] = {{\n'.format(name.upper()))

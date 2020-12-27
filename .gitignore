@@ -1,10 +1,12 @@
+# Project specific stuff
 gidgee
 libgidgee.a
 libgidgee.so
-*.ppm
 venv/
 .vscode/
 res/models/*.h
+res/shaders/*.h
+res/textures/*.h
 src/*.obj
 
 # Prerequisites

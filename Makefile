@@ -32,6 +32,7 @@ libgidgee_sources =      \
   src/opengl_renderer.c  \
   src/opengl_shader.c    \
   src/opengl_texture.c   \
+  src/pixel.c            \
   src/vertex.c           \
   src/vulkan_loader.c    \
   src/vulkan_renderer.c
@@ -43,6 +44,7 @@ src/opengl_loader.o: src/opengl_loader.c src/opengl_loader.h
 src/opengl_renderer.o: src/opengl_renderer.c src/opengl_renderer.h src/opengl_loader.h
 src/opengl_shader.o: src/opengl_shader.c src/opengl_shader.h src/opengl_loader.h
 src/opengl_texture.o: src/opengl_texture.c src/opengl_texture.h src/opengl_loader.h
+src/pixel.o: src/pixel.c src/pixel.h
 src/vertex.o: src/vertex.c src/vertex.h
 src/vulkan_loader.o: src/vulkan_loader.c src/vulkan_loader.h
 src/vulkan_renderer.o: src/vulkan_renderer.c src/vulkan_renderer.h src/vulkan_loader.h

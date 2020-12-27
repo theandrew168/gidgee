@@ -13,6 +13,7 @@
 #include "opengl_loader.h"
 #include "opengl_renderer.h"
 #include "opengl_shader.h"
+#include "opengl_texture.h"
 #include "vertex.h"
 
 struct app {
