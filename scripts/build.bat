@@ -1,5 +1,25 @@
 @echo off
 
+:: References:
+:: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically
+:: https://docs.microsoft.com/en-us/cpp/build/reference/linker-options
+
+:: setup python virtual environment
+python3.exe -m venv venv
+call "venv\Scripts\activate.bat"
+
+:: install python dependencies
+pip install -Uq wheel
+pip install -Uq -r scripts\requirements.txt
+
+:: convert resources to headers
+python3 scripts\res2header.py res\models\cube.obj res\models\cube.h
+python3 scripts\res2header.py res\models\square.obj res\models\square.h
+python3 scripts\res2header.py res\models\triangle.obj res\models\triangle.h
+python3 scripts\res2header.py res\shaders\dev_frag.glsl res\shaders\dev_frag.h
+python3 scripts\res2header.py res\shaders\dev_vert.glsl res\shaders\dev_vert.h
+python3 scripts\res2header.py res\textures\wall.jpg res\textures\wall.h
+
 :: list of source files to be compiled
 set SOURCES=                  ^
   %cd%\src\opengl_buffer.c    ^
@@ -7,14 +27,11 @@ set SOURCES=                  ^
   %cd%\src\opengl_renderer.c  ^
   %cd%\src\opengl_shader.c    ^
   %cd%\src\opengl_texture.c   ^
+  %cd%\src\pixel.c            ^
   %cd%\src\vertex.c           ^
   %cd%\src\vulkan_loader.c    ^
   %cd%\src\vulkan_renderer.c  ^
   %cd%\src\main.c
-
-:: References:
-:: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically
-:: https://docs.microsoft.com/en-us/cpp/build/reference/linker-options
 
 :: /FC  use full pathnames in diagnostics
 :: /WL  enable one line diagnostics

@@ -31,7 +31,7 @@ make
 brew install make python3
 
 make LDLIBS='-Lvendor/lib64/macos/ -lglfw3  \
-  -framework Cocoa -framework IOKit'
+  -framework Cocoa -framework CoreFoundation -framework IOKit'
 ```
 
 ### Windows
