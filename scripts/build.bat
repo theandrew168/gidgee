@@ -13,7 +13,7 @@ set SOURCES=                  ^
   %cd%\src\main.c
 
 :: References:
-:: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options
+:: https://docs.microsoft.com/en-us/cpp/build/reference/compiler-options-listed-alphabetically
 :: https://docs.microsoft.com/en-us/cpp/build/reference/linker-options
 
 :: /FC  use full pathnames in diagnostics
@@ -42,12 +42,13 @@ set LDFLAGS=/SUBSYSTEM:CONSOLE /ENTRY:mainCRTStartup /OPT:REF /INCREMENTAL:NO
 set LDLIBS=/LIBPATH:"%cd%\vendor\lib64\windows\" glfw3.lib gdi32.lib kernel32.lib shell32.lib user32.lib
 
 :: cl.exe   MSVC compiler command-line interface
+:: /nologo  suppress copyright banner
 :: CFLAGS   options for compilation
 :: SOURCES  source files to be compiled
 :: /link    options to be passed to the linker
 :: /OUT     name of output file
 :: LDFLAGS  options for linking
 :: LDLIBS   libraries to link against
-cl.exe %CFLAGS% %SOURCES% /link /OUT:.\gidgee.exe %LDFLAGS% %LDLIBS%
+cl.exe /nologo %CFLAGS% %SOURCES% /link /OUT:.\gidgee.exe %LDFLAGS% %LDLIBS%
 
 echo Error: %ERRORLEVEL%
