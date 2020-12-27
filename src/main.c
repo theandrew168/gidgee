@@ -15,6 +15,71 @@
 #include "opengl_shader.h"
 #include "vertex.h"
 
+struct app {
+    long vertex_count;
+    unsigned vbo;
+    unsigned vao;
+    unsigned shader;
+};
+
+void
+app_init(struct app* app)
+{
+    int vertex_format = VERTEX_FORMAT_POSITION | VERTEX_FORMAT_COLOR;
+    long vertex_count = 3;
+    float vertices[] = {
+        // positions         // colors
+         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   // top 
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+    }; 
+    unsigned int vbo = opengl_buffer_create(vertex_format, vertices, vertex_count);
+    unsigned int vao = opengl_buffer_config(vertex_format, vbo);
+
+    const char vert_source[] =
+        "#version 330 core\n"
+        "layout (location = 0) in vec3 aPos;\n"   // the position variable has attribute position 0
+        "layout (location = 3) in vec3 aColor;\n" // the color variable has attribute position 3
+        "\n"
+        "out vec3 ourColor;\n" // output a color to the fragment shader
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    gl_Position = vec4(aPos, 1.0);\n"
+        "    ourColor = aColor;\n" // set ourColor to the input color we got from the vertex data
+        "}\n";
+    const char frag_source[] =
+        "#version 330 core\n"
+        "out vec4 FragColor;\n"
+        "in vec3 ourColor;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    FragColor = vec4(ourColor, 1.0f);\n"
+        "}\n";
+    unsigned int shader = opengl_shader_compile_and_link(vert_source, frag_source);
+
+    app->vertex_count = vertex_count;
+    app->vbo = vbo;
+    app->vao = vao;
+    app->shader = shader;
+}
+
+void
+app_update(struct app* app, double delta)
+{
+    (void)app;
+    (void)delta;
+}
+
+void
+app_render(struct app* app)
+{
+    glUseProgram(app->shader);
+    glBindVertexArray(app->vao);
+    glDrawArrays(GL_TRIANGLES, 0, app->vertex_count);
+}
+
 static void
 print_usage(const char* arg0)
 {
@@ -105,39 +170,8 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    int vertex_format = VERTEX_FORMAT_POSITION | VERTEX_FORMAT_COLOR;
-    long vertex_count = 3;
-    float vertices[] = {
-        // positions         // colors
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   // top 
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-    }; 
-    unsigned int vbo = opengl_buffer_create(vertex_format, vertices, vertex_count);
-    unsigned int vao = opengl_buffer_config(vertex_format, vbo);
-
-    const char vert_source[] =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"   // the position variable has attribute position 0
-        "layout (location = 3) in vec3 aColor;\n" // the color variable has attribute position 3
-        "\n"
-        "out vec3 ourColor;\n" // output a color to the fragment shader
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    gl_Position = vec4(aPos, 1.0);\n"
-        "    ourColor = aColor;\n" // set ourColor to the input color we got from the vertex data
-        "}\n";
-    const char frag_source[] =
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "in vec3 ourColor;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    FragColor = vec4(ourColor, 1.0f);\n"
-        "}\n";
-    unsigned int shader = opengl_shader_compile_and_link(vert_source, frag_source);
+    struct app app = { 0 };
+    app_init(&app);
 
     double last_second = 0.0;
     double last_frame = last_second;
@@ -152,15 +186,15 @@ main(int argc, char* argv[])
         double delta = now - last_frame;
         last_frame = now;
 
+        app_update(&app, delta);
+
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         glViewport(0, 0, width, height);
+        glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        opengl_renderer_clear(&renderer);
-
-        glUseProgram(shader);
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, vertex_count);
+        app_render(&app);
 
         frame_count++;
         if (glfwGetTime() - last_second >= 1.0) {
@@ -169,7 +203,7 @@ main(int argc, char* argv[])
             last_second += 1.0;
         }
 
-        opengl_renderer_present(&renderer);
+        glfwSwapBuffers(window);
         glfwPollEvents();
     }
 

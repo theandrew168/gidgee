@@ -43,20 +43,3 @@ opengl_renderer_term(struct opengl_renderer* renderer)
     assert(renderer != NULL);
     return 0;
 }
-
-void
-opengl_renderer_clear(struct opengl_renderer* renderer)
-{
-    assert(renderer != NULL);
-
-    glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-void
-opengl_renderer_present(struct opengl_renderer* renderer)
-{
-    assert(renderer != NULL);
-
-    glfwSwapBuffers(renderer->window);
-}
