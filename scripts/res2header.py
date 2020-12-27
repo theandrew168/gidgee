@@ -53,7 +53,7 @@ def model2header(resource_file):
                 vertices.extend(position)
             elif material.vertex_format == 'T2F_V3F':
                 texcoord = vertex[0:2]
-                position = vectex[2:5]
+                position = vertex[2:5]
                 vertices.extend(position)
                 vertices.extend(texcoord)
             elif material.vertex_format == 'N3F_V3F':
@@ -109,8 +109,6 @@ def shader2header(resource_file):
     s.write('// python3 ' + ' '.join(sys.argv) + '\n')
     s.write('#ifndef {}\n'.format(guard))
     s.write('#define {}\n'.format(guard))
-    s.write('\n')
-    s.write('#include "shader.h"\n')
     s.write('\n')
     s.write('static const char SHADER_{}_PATH[] = "{}";\n'.format(name.upper(), resource_file))
     s.write('static const char SHADER_{}_SOURCE[] = \n'.format(name.upper()))

@@ -16,6 +16,12 @@
 #include "opengl_texture.h"
 #include "vertex.h"
 
+// resources
+//#include "models/triangle.h"
+//#include "shaders/dev_frag.h"
+//#include "shaders/dev_vert.h"
+//#include "textures/wall.h"
+
 struct app {
     long vertex_count;
     unsigned vbo;
@@ -69,6 +75,7 @@ app_init(struct app* app)
 void
 app_update(struct app* app, double delta)
 {
+    // unused vars... for now
     (void)app;
     (void)delta;
 }

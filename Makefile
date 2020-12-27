@@ -7,7 +7,7 @@ CFLAGS_VERSION = -std=c99
 CFLAGS_OPTIMIZATIONS = -g -Og
 CFLAGS_WARNINGS = -Wall -Wextra -Wpedantic
 CFLAGS_DEFINITIONS = -DGLFW_INCLUDE_NONE -DVK_NO_PROTOTYPES
-CFLAGS_INCLUDE_DIRS = -Isrc/ -Ivendor/include/
+CFLAGS_INCLUDE_DIRS = -Ires/ -Isrc/ -Ivendor/include/
 
 # Declare compiler tools and flags
 AR      = ar
@@ -65,12 +65,61 @@ libgidgee.so: $(libgidgee_objects)
 	@echo "CC      $@"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
+# Declare required resource headers
+resource_headers =        \
+  res/models/cube.h       \
+  res/models/square.h     \
+  res/models/triangle.h   \
+  res/shaders/dev_frag.h  \
+  res/shaders/dev_vert.h  \
+  res/textures/wall.h
+
+# Express dependencies between header and resource files
+res/models/cube.h: res/models/cube.obj
+res/models/square.h: res/models/square.obj
+res/models/triangle.h: res/models/triangle.obj
+res/shaders/dev_frag.h: res/shaders/dev_frag.glsl
+res/shaders/dev_vert.h: res/shaders/dev_vert.glsl
+res/textures/wall.h: res/textures/wall.jpg
+
+# Resource conversion requires some Python packages
+$(resource_headers): venv
+
 # Compile and link the main executable
-gidgee: src/main.c libgidgee.a
+gidgee: src/main.c libgidgee.a $(resource_headers)
 	@echo "EXE     $@"
 	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ src/main.c libgidgee.a $(LDLIBS)
+
+# Create the virtualenv for pre/post build scripts
+venv:
+	@echo "VENV    venv/"
+	@python3 -m venv venv/
+	@./venv/bin/pip install -Uq wheel
+	@echo "DEPS    scripts/requirements.txt"
+	@./venv/bin/pip install -Uq -r scripts/requirements.txt
+
+# Double suffix rules for convertion resource files to header files
+.SUFFIXES: .obj .h
+.obj.h:
+	@echo "MODEL   $@"
+	@./venv/bin/python3 scripts/res2header.py $< $@
+
+.SUFFIXES: .glsl .h
+.glsl.h:
+	@echo "SHADER  $@"
+	@./venv/bin/python3 scripts/res2header.py $< $@
+
+.SUFFIXES: .jpg .h
+.jpg.h:
+	@echo "TEXTURE $@"
+	@./venv/bin/python3 scripts/res2header.py $< $@
+
+.SUFFIXES: .png .h
+.png.h:
+	@echo "TEXTURE $@"
+	@./venv/bin/python3 scripts/res2header.py $< $@
 
 # Helper target that cleans up build artifacts
 .PHONY: clean
 clean:
-	rm -fr gidgee *.exe *.a *.so *.dll src/*.o
+	rm -fr gidgee *.exe *.a *.so *.dll src/*.o res/models/*.h res/shaders/*.h res/textures/*.h
