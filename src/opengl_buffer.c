@@ -33,22 +33,22 @@ opengl_buffer_config(int vertex_format, unsigned int buffer)
     long offset = 0;
 
     if (vertex_format & VERTEX_FORMAT_POSITION) {
-        glVertexAttribPointer(VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+        glVertexAttribPointer(VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, stride, (void*)((size_t)offset));
         glEnableVertexAttribArray(VERTEX_ATTRIB_POSITION);
         offset += 3 * sizeof(float);
     }
     if (vertex_format & VERTEX_FORMAT_TEXCOORD) {
-        glVertexAttribPointer(VERTEX_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+        glVertexAttribPointer(VERTEX_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, stride, (void*)((size_t)offset));
         glEnableVertexAttribArray(VERTEX_ATTRIB_TEXCOORD);
         offset += 2 * sizeof(float);
     }
     if (vertex_format & VERTEX_FORMAT_NORMAL) {
-        glVertexAttribPointer(VERTEX_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+        glVertexAttribPointer(VERTEX_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, stride, (void*)((size_t)offset));
         glEnableVertexAttribArray(VERTEX_ATTRIB_NORMAL);
         offset += 3 * sizeof(float);
     }
     if (vertex_format & VERTEX_FORMAT_COLOR) {
-        glVertexAttribPointer(VERTEX_ATTRIB_COLOR, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
+        glVertexAttribPointer(VERTEX_ATTRIB_COLOR, 3, GL_FLOAT, GL_FALSE, stride, (void*)((size_t)offset));
         glEnableVertexAttribArray(VERTEX_ATTRIB_COLOR);
         offset += 3 * sizeof(float);
     }
