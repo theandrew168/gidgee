@@ -21,14 +21,14 @@ Windows binaries can also be cross-compiled from a unix-like system via [mingw-w
 ### Linux
 ```
 # debian-based
-sudo apt install gcc make libglfw3-dev
+sudo apt install gcc make libglfw3-dev python3 python3-venv
 
 make
 ```
 
 ### macOS
 ```
-brew install make
+brew install make python3
 
 make LDLIBS='-Lvendor/lib64/macos/ -lglfw3  \
   -framework Cocoa -framework IOKit'
@@ -50,7 +50,7 @@ If you are using a different version then you'll need to update this script acco
 #### Cross-Compile from Linux
 ```
 # debian-based
-sudo apt install make mingw-w64
+sudo apt install make mingw-w64 python3 python3-venv
 
 make  \
   AR=x86_64-w64-mingw32-ar  \
@@ -62,7 +62,7 @@ make  \
 
 #### Cross-Compile from macOS
 ```
-brew install make mingw-w64
+brew install make mingw-w64 python3
 
 make  \
   AR=x86_64-w64-mingw32-ar  \
