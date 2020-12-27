@@ -5,6 +5,7 @@ libgidgee.so
 venv/
 .vscode/
 res/models/*.h
+src/*.obj
 
 # Prerequisites
 *.d

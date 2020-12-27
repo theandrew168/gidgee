@@ -17,14 +17,13 @@ set SOURCES=                  ^
 :: https://docs.microsoft.com/en-us/cpp/build/reference/linker-options
 
 :: /FC  use full pathnames in diagnostics
-:: /MT  link with LIBCMT.LIB
 :: /WL  enable one line diagnostics
 :: /Zi  generate debugging info
 :: /Zl  omit default C runtime library
 :: /Fo  name object file
 :: /I   add directory to header search path
 :: /D   defines a preprocessing symbol
-set CFLAGS=/FC /MT /WL /Zi /Zl /Fo.\src\
+set CFLAGS=/FC /WL /Zi /Zl /Fo.\src\
 set CFLAGS=%CFLAGS% /I %cd%\src\ /I %cd%\vendor\include\
 set CFLAGS=%CFLAGS% /D GLFW_INCLUDE_NONE /D VK_NO_PROTOTYPES
 
