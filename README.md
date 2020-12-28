@@ -11,8 +11,10 @@ On Linux, however, this must be installed (or built) manually.
 The package name on Debian-based distributions is `libglfw3-dev`.
 
 ### Python
+In order to build Gidgee, you need to download and install a recent version of [Python](https://www.python.org/downloads/).
+For extra guidance, Real Python has a great [installation and setup guide](https://realpython.com/installing-python/) that I recommend following.
+
 Gidgee's build process utilizes Python for various scripting tasks.
-Download and install a recent version of Python 3 from the [download page](https://www.python.org/downloads/) for your corresponding operating system.
 At the moment, `scripts/res2header.py` is used to convert runtime resources (models, shaders, textures, etc) from their native format into embeddable C headers.
 This shift in complexity from runtime to build time allows the final artifact to be completely standalone.
 
