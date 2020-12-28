@@ -80,7 +80,6 @@ def model2header(resource_file):
     s.write('\n')
     s.write('#include "vertex.h"\n')
     s.write('\n')
-    s.write('static const char MODELS_{}_PATH[] = "{}";\n'.format(name.upper(), resource_file))
     s.write('static const int MODELS_{}_VERTEX_FORMAT = {};\n'.format(name.upper(), format))
     s.write('static const long MODELS_{}_VERTEX_COUNT = {};\n'.format(name.upper(), count))
     s.write('static const float MODELS_{}_VERTICES[] = {{\n'.format(name.upper()))
@@ -110,7 +109,6 @@ def shader2header(resource_file):
     s.write('#ifndef {}\n'.format(guard))
     s.write('#define {}\n'.format(guard))
     s.write('\n')
-    s.write('static const char SHADERS_{}_PATH[] = "{}";\n'.format(name.upper(), resource_file))
     s.write('static const char SHADERS_{}_SOURCE[] = \n'.format(name.upper()))
     for line in source.splitlines():
         s.write('    "{}\\n"\n'.format(line))
@@ -152,7 +150,6 @@ def texture2header(resource_file):
     s.write('\n')
     s.write('#include "pixel.h"\n')
     s.write('\n')
-    s.write('static const char TEXTURES_{}_PATH[] = "{}";\n'.format(name.upper(), resource_file))
     s.write('static const int TEXTURES_{}_PIXEL_FORMAT = {};\n'.format(name.upper(), format))
     s.write('static const long TEXTURES_{}_WIDTH = {};\n'.format(name.upper(), width))
     s.write('static const long TEXTURES_{}_HEIGHT = {};\n'.format(name.upper(), height))

@@ -3,12 +3,18 @@ Experiments in real-time rendering and rigid body physics
 
 
 ## Dependencies
-Gidgee depends on two other projects: [GLFW](https://www.glfw.org/) and [Vulkan](https://www.khronos.org/vulkan/).
+Building Gidgee depends on three other projects: [GLFW](https://www.glfw.org/), [Python](https://www.python.org/), and [Vulkan](https://www.khronos.org/vulkan/).
 
 ### GLFW
 On Windows and macOS, this dependency is bundled into the project and therefore requires no special installation steps.
 On Linux, however, this must be installed (or built) manually.
 The package name on Debian-based distributions is `libglfw3-dev`.
+
+### Python
+Gidgee's build process utilizes Python for various scripting tasks.
+Download and install a recent version of Python 3 from the [download page](https://www.python.org/downloads/) for your corresponding operating system.
+At the moment, `scripts/res2header.py` is used to convert runtime resources (models, shaders, textures, etc) from their native format into embeddable C headers.
+This shift in complexity from runtime to build time allows the final artifact to be completely standalone.
 
 ### Vulkan
 Gidgee depends on having a recent version of the [Vulkan SDK](https://vulkan.lunarg.com/sdk/home) installed.
