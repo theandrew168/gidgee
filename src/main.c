@@ -11,65 +11,50 @@
 
 #include "opengl_buffer.h"
 #include "opengl_loader.h"
-#include "opengl_renderer.h"
 #include "opengl_shader.h"
 #include "opengl_texture.h"
-#include "vertex.h"
 
 // resources
-//#include "models/triangle.h"
-//#include "shaders/dev_frag.h"
-//#include "shaders/dev_vert.h"
-//#include "textures/wall.h"
+#include "models/triangle.h"
+#include "shaders/dev_frag.h"
+#include "shaders/dev_vert.h"
+#include "textures/wall.h"
 
 struct app {
     long vertex_count;
     unsigned vbo;
     unsigned vao;
     unsigned shader;
+    unsigned texture;
 };
 
 void
 app_init(struct app* app)
 {
-    int vertex_format = VERTEX_FORMAT_POSITION | VERTEX_FORMAT_COLOR;
-    long vertex_count = 3;
-    float vertices[] = {
-        // positions         // colors
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,   // top 
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-    }; 
-    unsigned int vbo = opengl_buffer_create(vertex_format, vertices, vertex_count);
-    unsigned int vao = opengl_buffer_config(vertex_format, vbo);
+    unsigned int vbo = opengl_buffer_create(
+        MODELS_TRIANGLE_VERTEX_FORMAT,
+        MODELS_TRIANGLE_VERTICES,
+        MODELS_TRIANGLE_VERTEX_COUNT);
+    unsigned int vao = opengl_buffer_config(
+        MODELS_TRIANGLE_VERTEX_FORMAT,
+        vbo);
 
-    const char vert_source[] =
-        "#version 330 core\n"
-        "layout (location = 0) in vec3 aPos;\n"   // the position variable has attribute position 0
-        "layout (location = 3) in vec3 aColor;\n" // the color variable has attribute position 3
-        "\n"
-        "out vec3 ourColor;\n" // output a color to the fragment shader
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    gl_Position = vec4(aPos, 1.0);\n"
-        "    ourColor = aColor;\n" // set ourColor to the input color we got from the vertex data
-        "}\n";
-    const char frag_source[] =
-        "#version 330 core\n"
-        "out vec4 FragColor;\n"
-        "in vec3 ourColor;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "    FragColor = vec4(ourColor, 1.0f);\n"
-        "}\n";
-    unsigned int shader = opengl_shader_compile_and_link(vert_source, frag_source);
+    unsigned int shader = opengl_shader_compile_and_link(
+        SHADERS_DEV_VERT_SOURCE,
+        SHADERS_DEV_FRAG_SOURCE);
+    opengl_shader_set_int(shader, "u_texture", 0);
 
-    app->vertex_count = vertex_count;
+    unsigned int texture = opengl_texture_create(
+        TEXTURES_WALL_PIXEL_FORMAT,
+        TEXTURES_WALL_WIDTH,
+        TEXTURES_WALL_HEIGHT,
+        TEXTURES_WALL_PIXELS);
+
+    app->vertex_count = MODELS_TRIANGLE_VERTEX_COUNT;
     app->vbo = vbo;
     app->vao = vao;
     app->shader = shader;
+    app->texture = texture;
 }
 
 void
@@ -84,7 +69,10 @@ void
 app_render(struct app* app)
 {
     glUseProgram(app->shader);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, app->texture);
     glBindVertexArray(app->vao);
+
     glDrawArrays(GL_TRIANGLES, 0, app->vertex_count);
 }
 
@@ -97,6 +85,7 @@ print_usage(const char* arg0)
     printf("  -h  --help        print this help\n");
     printf("  -f  --fullscreen  fullscreen window\n");
     printf("  -r  --resizable   resizable window\n");
+    printf("  -v  --vsync       disable vsync\n");
     printf("  -vk --vulkan      use vulkan renderer\n");
 }
 
@@ -105,6 +94,7 @@ main(int argc, char* argv[])
 {
     bool fullscreen = false;
     bool resizable = false;
+    bool vsync = true;
     bool use_vk = false;
 
     for (int i = 1; i < argc; i++) {
@@ -117,6 +107,9 @@ main(int argc, char* argv[])
         }
         if (strcmp(argv[i], "-r") == 0 || strcmp(argv[i], "--resizable") == 0) {
             resizable = true;
+        }
+        if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--vsync") == 0) {
+            vsync = false;
         }
         if (strcmp(argv[i], "-vk") == 0 || strcmp(argv[i], "--vulkan") == 0) {
             use_vk = true;
@@ -171,12 +164,23 @@ main(int argc, char* argv[])
     }
 
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(vsync ? 1 : 0);
+    opengl_loader_load_functions();
 
-    struct opengl_renderer renderer = { 0 };
-    if (opengl_renderer_init(&renderer, window) != 0) {
-        fprintf(stderr, "failed to init OpenGL renderer\n");
-        return EXIT_FAILURE;
-    }
+    printf("OpenGL Vendor:   %s\n", glGetString(GL_VENDOR));
+    printf("OpenGL Renderer: %s\n", glGetString(GL_RENDERER));
+    printf("OpenGL Version:  %s\n", glGetString(GL_VERSION));
+    printf("GLSL Version:    %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     struct app app = { 0 };
     app_init(&app);
@@ -199,6 +203,7 @@ main(int argc, char* argv[])
         int width, height;
         glfwGetFramebufferSize(window, &width, &height);
         glViewport(0, 0, width, height);
+
         glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -215,7 +220,6 @@ main(int argc, char* argv[])
         glfwPollEvents();
     }
 
-    opengl_renderer_term(&renderer);
     glfwDestroyWindow(window);
     glfwTerminate();
 

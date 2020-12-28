@@ -77,6 +77,14 @@ opengl_shader_compile_and_link(const char* vertex_source, const char* fragment_s
 }
 
 void
+opengl_shader_set_int(unsigned int shader, const char* name, int value)
+{
+    int location = glGetUniformLocation(shader, name);
+    glUseProgram(shader);
+    glUniform1i(location, value);
+}
+
+void
 opengl_shader_set_float(unsigned int shader, const char* name, float value)
 {
     int location = glGetUniformLocation(shader, name);
