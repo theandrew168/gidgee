@@ -94,9 +94,9 @@ gidgee: src/main.c libgidgee.a $(resource_headers)
 venv:
 	@echo "VENV    venv/"
 	@python3 -m venv venv/
-	@./venv/bin/pip install -Uq wheel
+	@./venv/bin/pip install wheel
 	@echo "DEPS    scripts/requirements.txt"
-	@./venv/bin/pip install -Uq -r scripts/requirements.txt
+	@./venv/bin/pip install -r scripts/requirements.txt
 
 # Double suffix rules for convertion resource files to header files
 .SUFFIXES: .obj .h

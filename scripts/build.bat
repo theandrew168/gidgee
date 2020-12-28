@@ -5,20 +5,19 @@
 :: https://docs.microsoft.com/en-us/cpp/build/reference/linker-options
 
 :: setup python virtual environment
-python -m venv venv
-call "venv\Scripts\activate.bat"
+python.exe -m venv %cd%\venv
 
 :: install python dependencies
-pip install wheel
-pip install -r scripts\requirements.txt
+%cd%\venv\scripts\python.exe -m pip install wheel
+%cd%\venv\scripts\python.exe -m pip install -r %cd%\scripts\requirements.txt
 
 :: convert resources to headers
-python scripts\res2header.py res\models\cube.obj res\models\cube.h
-python scripts\res2header.py res\models\square.obj res\models\square.h
-python scripts\res2header.py res\models\triangle.obj res\models\triangle.h
-python scripts\res2header.py res\shaders\dev_frag.glsl res\shaders\dev_frag.h
-python scripts\res2header.py res\shaders\dev_vert.glsl res\shaders\dev_vert.h
-python scripts\res2header.py res\textures\wall.jpg res\textures\wall.h
+%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\models\cube.obj %cd%\res\models\cube.h
+%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\models\square.obj %cd%\res\models\square.h
+%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\models\triangle.obj %cd%\res\models\triangle.h
+%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\shaders\dev_frag.glsl %cd%\res\shaders\dev_frag.h
+%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\shaders\dev_vert.glsl %cd%\res\shaders\dev_vert.h
+%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\textures\wall.jpg %cd%\res\textures\wall.h
 
 :: list of source files to be compiled
 set SOURCES=                  ^
@@ -41,7 +40,7 @@ set SOURCES=                  ^
 :: /I   add directory to header search path
 :: /D   defines a preprocessing symbol
 set CFLAGS=/FC /WL /Zi /Zl /Fo.\src\
-set CFLAGS=%CFLAGS% /I %cd%\src\ /I %cd%\vendor\include\
+set CFLAGS=%CFLAGS% /I %cd%\res\ /I %cd%\src\ /I %cd%\vendor\include\
 set CFLAGS=%CFLAGS% /D GLFW_INCLUDE_NONE /D VK_NO_PROTOTYPES
 
 :: /SUBSYSTEM    type of application (CONSOLE for development, WINDOWS for deployment)
