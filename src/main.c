@@ -20,6 +20,10 @@
 #include "shaders/dev_vert.h"
 #include "textures/box_diffuse.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 struct app {
     long vertex_count;
     unsigned vbo;
@@ -43,6 +47,12 @@ app_init(struct app* app)
         SHADERS_DEV_VERT_SOURCE,
         SHADERS_DEV_FRAG_SOURCE);
     opengl_shader_set_int(shader, "u_texture", 0);
+
+    mat4x4 mvp = {{ 0 }};
+    mat4x4_identity(mvp);
+    mat4x4_rotate(mvp, mvp, 0.0f, 0.0f, 1.0f, 90.0f * (M_PI / 180.0));
+    mat4x4_scale_aniso(mvp, mvp, 0.5f, 0.5f, 0.5f);
+    opengl_shader_set_mat4(shader, "u_mvp", mvp);
 
     unsigned int texture = opengl_texture_create(
         TEXTURES_BOX_DIFFUSE_PIXEL_FORMAT,

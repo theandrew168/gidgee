@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include <GL/glcorearb.h>
+#include <linmath/linmath.h>
 
 #include "opengl_loader.h"
 #include "opengl_shader.h"
@@ -90,4 +91,12 @@ opengl_shader_set_float(unsigned int shader, const char* name, float value)
     int location = glGetUniformLocation(shader, name);
     glUseProgram(shader);
     glUniform1f(location, value);
+}
+
+void
+opengl_shader_set_mat4(unsigned int shader, const char* name, mat4x4 value)
+{
+    int location = glGetUniformLocation(shader, name);
+    glUseProgram(shader);
+    glUniformMatrix4fv(location, 1, GL_FALSE, (const float*)value);
 }
