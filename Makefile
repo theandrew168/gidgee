@@ -66,21 +66,19 @@ libgidgee.so: $(libgidgee_objects)
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
 # Declare required resource headers
-resource_headers =        \
-  res/models/cube.h       \
-  res/models/square.h     \
-  res/models/triangle.h   \
-  res/shaders/dev_frag.h  \
-  res/shaders/dev_vert.h  \
-  res/textures/wall.h
+resource_headers =            \
+  res/models/cube.h           \
+  res/models/square.h         \
+  res/shaders/dev_frag.h      \
+  res/shaders/dev_vert.h      \
+  res/textures/box_diffuse.h
 
 # Express dependencies between header and resource files
 res/models/cube.h: res/models/cube.obj
 res/models/square.h: res/models/square.obj
-res/models/triangle.h: res/models/triangle.obj
 res/shaders/dev_frag.h: res/shaders/dev_frag.glsl
 res/shaders/dev_vert.h: res/shaders/dev_vert.glsl
-res/textures/wall.h: res/textures/wall.jpg
+res/textures/box_diffuse.h: res/textures/box_diffuse.png
 
 # Resource conversion requires some Python packages
 $(resource_headers): venv

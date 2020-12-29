@@ -14,10 +14,9 @@ python.exe -m venv %cd%\venv
 :: convert resources to headers
 %cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\models\cube.obj %cd%\res\models\cube.h
 %cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\models\square.obj %cd%\res\models\square.h
-%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\models\triangle.obj %cd%\res\models\triangle.h
 %cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\shaders\dev_frag.glsl %cd%\res\shaders\dev_frag.h
 %cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\shaders\dev_vert.glsl %cd%\res\shaders\dev_vert.h
-%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\textures\wall.jpg %cd%\res\textures\wall.h
+%cd%\venv\scripts\python.exe %cd%\scripts\res2header.py %cd%\res\textures\box_diffuse.png %cd%\res\textures\box_diffuse.h
 
 :: list of source files to be compiled
 set SOURCES=                  ^

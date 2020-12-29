@@ -15,10 +15,10 @@
 #include "opengl_texture.h"
 
 // resources
-#include "models/triangle.h"
+#include "models/square.h"
 #include "shaders/dev_frag.h"
 #include "shaders/dev_vert.h"
-#include "textures/wall.h"
+#include "textures/box_diffuse.h"
 
 struct app {
     long vertex_count;
@@ -32,11 +32,11 @@ void
 app_init(struct app* app)
 {
     unsigned int vbo = opengl_buffer_create(
-        MODELS_TRIANGLE_VERTEX_FORMAT,
-        MODELS_TRIANGLE_VERTICES,
-        MODELS_TRIANGLE_VERTEX_COUNT);
+        MODELS_SQUARE_VERTEX_FORMAT,
+        MODELS_SQUARE_VERTICES,
+        MODELS_SQUARE_VERTEX_COUNT);
     unsigned int vao = opengl_buffer_config(
-        MODELS_TRIANGLE_VERTEX_FORMAT,
+        MODELS_SQUARE_VERTEX_FORMAT,
         vbo);
 
     unsigned int shader = opengl_shader_compile_and_link(
@@ -45,12 +45,12 @@ app_init(struct app* app)
     opengl_shader_set_int(shader, "u_texture", 0);
 
     unsigned int texture = opengl_texture_create(
-        TEXTURES_WALL_PIXEL_FORMAT,
-        TEXTURES_WALL_WIDTH,
-        TEXTURES_WALL_HEIGHT,
-        TEXTURES_WALL_PIXELS);
+        TEXTURES_BOX_DIFFUSE_PIXEL_FORMAT,
+        TEXTURES_BOX_DIFFUSE_WIDTH,
+        TEXTURES_BOX_DIFFUSE_HEIGHT,
+        TEXTURES_BOX_DIFFUSE_PIXELS);
 
-    app->vertex_count = MODELS_TRIANGLE_VERTEX_COUNT;
+    app->vertex_count = MODELS_SQUARE_VERTEX_COUNT;
     app->vbo = vbo;
     app->vao = vao;
     app->shader = shader;
